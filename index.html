@@ -88,9 +88,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .brand .wm{display:grid;line-height:.82;text-transform:uppercase;font-stretch:75%;font-variation-settings:"opsz" 96,"wdth" 75;font-size:21px;letter-spacing:-.01em}
 .brand .wm small{font:600 8.5px var(--mono);letter-spacing:.42em;margin-top:3px}
 /* round badge logo */
-.badge{width:60px;height:60px;border-radius:50%;box-shadow:inset 0 0 0 2.5px currentColor;display:grid;place-content:center;justify-items:center;text-align:center;text-transform:uppercase}
-.badge b{font-weight:800;font-size:15px;line-height:.9;letter-spacing:.01em;font-stretch:80%;font-variation-settings:"opsz" 96,"wdth" 80}
-.badge small{font-weight:700;font-size:5.5px;letter-spacing:.42em;margin:3px -.42em 0 0}
+.badge{display:block;width:60px;height:60px;background:currentColor;-webkit-mask:url(img/logo-badge.png) center/contain no-repeat;mask:url(img/logo-badge.png) center/contain no-repeat}
 .thm{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px currentColor;opacity:.85;transition:opacity .2s,background .2s,transform .5s var(--ease)}
 .thm:hover{opacity:1;background:rgba(127,127,127,.15)}
 .thm svg{width:18px;height:18px}
@@ -534,7 +532,7 @@ body.is-admin #admin{display:block}
 <header class="hdr" id="hdr">
   <div class="wrap hdr-in">
     <a href="#top" class="brand" aria-label="Flying Goat Coffee home">
-      <span class="badge" aria-hidden="true"><b>Flying<br>Goat</b><small>Coffee</small></span>
+      <span class="badge" aria-hidden="true"></span>
     </a>
     <nav class="nav" aria-label="Primary">
       <a href="#coffee">Coffee</a><a href="#compass">Taste compass</a><a href="#flight">Subscribe</a><a href="#cafes">Cafés</a><a href="#wholesale">Wholesale</a>
