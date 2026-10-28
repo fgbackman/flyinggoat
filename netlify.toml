@@ -1,0 +1,7 @@
+[build]
+  publish = "."
+
+[[redirects]]
+  from = "/flying-goat-v2.html"
+  to = "/"
+  status = 301
