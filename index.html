@@ -645,7 +645,7 @@ body.is-admin #admin{display:block}
               <li>Skip, swap or pause by replying to any text</li>
               <li>A free drink at any café every month</li>
             </ul>
-            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b b-flame mag" type="button" id="fpGo">Start subscription <span class="arr">→</span></button><button class="b b-line" type="button" data-toast="Gift flow: pick the recipient and a start date">Send as gift</button></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b b-flame mag" type="button" id="fpGo">Start subscription <span class="arr">→</span></button><button class="b b-line mag" type="button" data-toast="Gift flow: pick the recipient and a start date">Send as gift</button></div>
           </div>
         </div>
       </div>
@@ -869,7 +869,7 @@ function renderTrack(){
      <div class="cof-notes">${c.notes.join(', ')}</div>
      <div class="fresh"><span>Roasted ${roastDate(c.days)} · ${c.roast}</span>${c.stock<15?`<span class="lo">${c.stock} left</span>`:`<span>${c.process}</span>`}</div>
      <div class="cof-row"><div class="seg" role="group" aria-label="Size">${SIZES.map(z=>`<button type="button" data-size="${c.id}|${z[0]}" aria-pressed="${s.size===z[0]}">${z[1]}</button>`).join('')}</div><button class="add" type="button" data-add="${c.id}">Add</button></div>
-   </div></article>`}).join('')+`<div class="end-card"><span class="mono" style="color:var(--mute)">Bottom of the mountain</span><h3>Still not sure? <span class="serif" style="color:var(--accent)">Let the goat choose.</span></h3><a class="b b-flame" href="#compass">Taste compass <span class="arr">→</span></a></div>`;
+   </div></article>`}).join('')+`<div class="end-card"><span class="mono" style="color:var(--mute)">Bottom of the mountain</span><h3>Still not sure? <span class="serif" style="color:var(--accent)">Let the goat choose.</span></h3><a class="b b-flame mag" href="#compass">Taste compass <span class="arr">→</span></a></div>`;
   sizeAlt();onScroll();
 }
 let altH=0,overflow=0;
