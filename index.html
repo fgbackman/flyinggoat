@@ -222,17 +222,20 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .big .serif{font-weight:400;letter-spacing:-.03em}
 .compass .big .serif{color:var(--accent)}
 .lede{font-size:20px;max-width:460px;margin:24px 0 0;color:var(--fg-2)}
-.pad{position:relative;aspect-ratio:1;background:var(--paper);border-radius:32px;box-shadow:inset 0 0 0 1px var(--line-l);touch-action:none;cursor:crosshair;overflow:hidden}
+.pad{position:relative;aspect-ratio:1;background:var(--paper);border-radius:32px;box-shadow:inset 0 0 0 1px var(--line-l);touch-action:pan-y pinch-zoom;cursor:crosshair;overflow:hidden}
 .pad::before,.pad::after{content:"";position:absolute;background:var(--line-l)}
 .pad::before{left:50%;top:6%;bottom:6%;width:1px}
 .pad::after{top:50%;left:6%;right:6%;height:1px}
 .pad .ring{position:absolute;border-radius:50%;border:1px dashed var(--line-l);left:50%;top:50%;transform:translate(-50%,-50%)}
 .ax{position:absolute;font:600 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
-.pt{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap;transition:opacity .3s,transform .3s var(--ease)}
+.pt{--tx:-7px;position:absolute;transform:translate(var(--tx),-50%);display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;white-space:nowrap;transition:opacity .3s,transform .3s var(--ease)}
 .pt i{width:14px;height:14px;border-radius:50%;background:var(--c);box-shadow:0 0 0 4px var(--paper)}
 .pt.dim{opacity:.28}
-.pt.hit{transform:translate(-50%,-50%) scale(1.15)}
-.puck{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--forest);transform:translate(-50%,-50%);display:grid;place-items:center;box-shadow:0 0 0 10px color-mix(in srgb,var(--lime) 40%,transparent),0 14px 30px rgba(0,0,0,.25);cursor:grab;z-index:3;transition:box-shadow .2s}
+.pt.l{--tx:calc(-100% + 7px);flex-direction:row-reverse}
+.pt.hit{transform:translate(var(--tx),-50%) scale(1.15)}
+.puck{position:absolute;width:64px;height:64px;border-radius:50%;background:var(--forest);transform:translate(-50%,-50%);display:grid;place-items:center;box-shadow:0 0 0 10px color-mix(in srgb,var(--lime) 40%,transparent),0 14px 30px rgba(0,0,0,.25);cursor:grab;z-index:3;transition:box-shadow .2s;touch-action:none}
+.pad.glide .puck{transition:left .35s var(--ease),top .35s var(--ease),box-shadow .2s}
+.m-only{display:none}
 .puck:active{cursor:grabbing;box-shadow:0 0 0 18px color-mix(in srgb,var(--lime) 45%,transparent),0 14px 30px rgba(0,0,0,.25)}
 .puck svg{width:38px;height:38px;color:var(--lime)}
 .matches{margin-top:28px;display:grid;gap:10px}
@@ -241,7 +244,10 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .match b{font-size:18px;letter-spacing:-.03em}
 .match small{display:block;font-family:var(--serif);font-style:italic;font-size:16px;color:var(--fg-2)}
 .match .sw{width:12px;height:40px;border-radius:6px;background:var(--c)}
-@media (max-width:900px){.cmp-grid{grid-template-columns:1fr;gap:32px}.compass{padding:90px 0}.match{grid-template-columns:auto 1fr auto}.match .sw{display:none}}
+@media (max-width:900px){.cmp-grid{grid-template-columns:1fr;gap:0}.cmp-grid>div:first-child{display:contents}.compass{padding:90px 0}.compass .lede{margin:16px 0 24px}.d-only{display:none}.m-only{display:inline}
+  .pad{width:min(85%,420px);justify-self:center;order:1}.pt{font-size:12px}#matches{order:2;margin-top:16px;gap:8px}
+  .match{grid-template-columns:auto 1fr auto;padding:8px 8px 8px 14px;gap:10px}.match .sw,.match small{display:none}.match .pct{font-size:15px;min-width:44px}.match b{font-size:16px}.match .add{padding:8px 12px;font-size:13px}
+  .match.top{grid-template-columns:auto 1fr;padding:16px;gap:4px 14px}.match.top small{display:block}.match.top .pct{font-size:28px;min-width:0}.match.top b{font-size:22px}.match.top .add{grid-column:1/-1;margin-top:10px;padding:14px;font-size:15px}}
 
 /* FLIGHT PLAN */
 .flight{padding:140px 0;background:var(--bg)}
@@ -601,7 +607,7 @@ body.is-admin #admin{display:block}
       <div class="rv">
         <div class="sec-k mono"><i></i>02 — Taste compass</div>
         <h2 class="big">Drag the goat <span class="serif">to your taste.</span></h2>
-        <p class="lede">Forget the jargon. Move the goat toward what you like, and your matches update as you drag. You can also use the arrow keys.</p>
+        <p class="lede"><span class="d-only">Forget the jargon. Move the goat toward what you like, and your matches update as you drag. You can also use the arrow keys.</span><span class="m-only">Drag or tap the goat toward what you like.</span></p>
         <div class="matches" id="matches" aria-live="polite"></div>
       </div>
       <div class="pad rv" id="pad" aria-label="Taste compass. Use arrow keys to move.">
@@ -895,19 +901,21 @@ document.addEventListener('pointermove',e=>{const top=e.target.closest&&e.target
 
 /* ============ COMPASS ============ */
 const pad=$('#pad'),puck=$('#puck');let P={x:.5,y:.5};
-function renderPts(){$('#pts').innerHTML=C.map(c=>`<div class="pt" data-pt="${c.id}" style="left:${c.tx*100}%;top:${c.ty*100}%;--c:${c.c}"><i></i>${c.short}</div>`).join('')}
+function renderPts(){$('#pts').innerHTML=C.map(c=>`<div class="pt${c.tx>.6?' l':''}" data-pt="${c.id}" style="left:${c.tx*100}%;top:${c.ty*100}%;--c:${c.c}"><i></i>${c.short}</div>`).join('')}
 function setPuck(x,y){P.x=Math.min(.94,Math.max(.06,x));P.y=Math.min(.94,Math.max(.06,y));puck.style.left=P.x*100+'%';puck.style.top=P.y*100+'%';
   const sc=C.map(c=>({c,d:Math.hypot(c.tx-P.x,c.ty-P.y)})).sort((a,b)=>a.d-b.d);
   const top=sc.slice(0,3);
   $$('.pt').forEach(el=>{const t=top.findIndex(s=>s.c.id===el.dataset.pt);el.classList.toggle('dim',t<0);el.classList.toggle('hit',t===0)});
   puck.setAttribute('aria-valuetext',`${P.x<.4?'Fruity':P.x>.6?'Chocolatey':'Balanced'}, ${P.y<.4?'delicate':P.y>.6?'rich':'medium body'}. Top match ${top[0].c.name}`);
-  $('#matches').innerHTML=top.map(s=>`<div class="match" style="--c:${s.c.c}"><span class="pct">${Math.max(42,Math.round(100-s.d*110))}%</span><div><b>${s.c.name}</b><small>${s.c.notes.join(', ')}</small></div><span class="sw"></span><button class="add" type="button" data-add="${s.c.id}">Add ${money(s.c.price)}</button></div>`).join('');
+  $('#matches').innerHTML=top.map((s,i)=>`<div class="match${i?'':' top'}" style="--c:${s.c.c}"><span class="pct">${Math.max(42,Math.round(100-s.d*110))}%</span><div><b>${s.c.name}</b><small>${s.c.notes.join(', ')}</small></div><span class="sw"></span><button class="add" type="button" data-add="${s.c.id}">Add ${money(s.c.price)}</button></div>`).join('');
 }
-let drag=false;
+let drag=false,tap=null;
 function padMove(e){const r=pad.getBoundingClientRect();setPuck((e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height)}
-pad.addEventListener('pointerdown',e=>{if(e.target.closest('.add'))return;drag=true;pad.setPointerCapture(e.pointerId);padMove(e)});
+// touch: drag only from the goat, a tap elsewhere glides it there, a swipe scrolls the page
+pad.addEventListener('pointerdown',e=>{if(e.target.closest('.add'))return;if(e.pointerType!=='mouse'&&!e.target.closest('.puck')){tap={x:e.clientX,y:e.clientY};return}drag=true;pad.setPointerCapture(e.pointerId);padMove(e)});
 pad.addEventListener('pointermove',e=>drag&&padMove(e));
-pad.addEventListener('pointerup',()=>drag=false);
+pad.addEventListener('pointerup',e=>{if(tap&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)<10){pad.classList.add('glide');padMove(e);setTimeout(()=>pad.classList.remove('glide'),350)}tap=null;drag=false});
+pad.addEventListener('pointercancel',()=>{tap=null;drag=false});
 puck.addEventListener('keydown',e=>{const s=.05;const m={ArrowLeft:[-s,0],ArrowRight:[s,0],ArrowUp:[0,-s],ArrowDown:[0,s]}[e.key];if(m){e.preventDefault();setPuck(P.x+m[0],P.y+m[1])}});
 
 /* ============ FLIGHT PLAN ============ */
