@@ -534,7 +534,8 @@ body.is-admin #admin{display:block}
 .painting img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 70%;opacity:.92;-webkit-mask:linear-gradient(transparent 8%,#000 46%);mask:linear-gradient(transparent 8%,#000 46%)}
 .h-title{font-size:clamp(60px,8.4vw,150px)}
 .hero .h-copy{text-shadow:0 0 2px #1e1814,0 1px 14px #1e1814,0 0 28px #1e1814}
-@media (min-width:901px) and (max-height:800px){.painting{height:46vh}}
+/* desktop: the painting starts at the "climbs." line (--paint-top is measured in script) and fades in below it */
+@media (min-width:901px){.painting{top:var(--paint-top,32%);height:auto}.painting img{object-position:50% 100%;-webkit-mask:linear-gradient(transparent,#000 min(320px,55%));mask:linear-gradient(transparent,#000 min(320px,55%))}}
 @media (max-width:900px){.painting{height:34vh}.painting img{object-position:30% 70%}.hero{padding-bottom:36vh}}
 </style>
 </head>
@@ -1140,7 +1141,9 @@ addEventListener('hashchange',route);
 
 /* ============ INIT ============ */
 renderChips();renderTrack();renderPts();setPuck(.5,.5);renderFP();renderCafes();renderCart();observe();route();
-document.fonts&&document.fonts.ready.then(()=>{sizeAlt();onScroll()});
+function placePainting(){const ln=$$('.h-title .ln')[1];if(ln)$('#hero').style.setProperty('--paint-top',Math.round(ln.getBoundingClientRect().top-$('#hero').getBoundingClientRect().top)+'px')}
+placePainting();addEventListener('resize',placePainting);
+document.fonts&&document.fonts.ready.then(()=>{sizeAlt();onScroll();placePainting()});
 setInterval(()=>{renderCafes();observe()},60000);
 </script>
 </body>
