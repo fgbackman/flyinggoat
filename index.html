@@ -132,6 +132,7 @@ button{font:inherit;color:inherit;cursor:pointer;background:none;border:0;paddin
 .scroll-hint i{width:1px;height:40px;background:linear-gradient(var(--accent),transparent);animation:drip 1.6s infinite}
 @keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 .hero .h-stats .stat{color:var(--fg)}
+@media (max-width:640px){.ticker>span:not(:first-child){display:none}.hero{padding-top:84px}.h-title{margin-top:20px}.h-row{margin-top:20px;gap:20px}.h-copy{font-size:17px}}
 @media (max-width:900px){.h-row{grid-template-columns:1fr}.h-stats{position:relative;right:auto;bottom:auto;justify-content:flex-start;margin-top:24px;padding:0 0 40px}.scroll-hint{display:none}.hero{padding-bottom:28vh}}
 
 /* marquee */
