@@ -576,7 +576,7 @@ body.is-admin #admin{display:block}
     </div>
     <div class="h-stats" aria-label="Live numbers">
       <div class="stat"><span class="mono">Roasted today</span><b><span id="sLb">312</span> lb</b></div>
-      <div class="stat"><span class="mono">Cafés open</span><b id="sOpen">2 / 3</b></div>
+      <div class="stat"><span class="mono">Cafés open</span><b id="sOpen">2 / 2</b></div>
       <div class="stat"><span class="mono">Avg pickup</span><b id="sWait">6 min</b></div>
     </div>
     <div class="scroll-hint mono"><i></i>Scroll to climb</div>
@@ -811,7 +811,6 @@ const C=[
 ];
 const CAFES=[
  {name:'Healdsburg Plaza',town:'Healdsburg',open:6.5,close:17,wait:6,c:'#0f4c3c',feat:'Patio · Pastries'},
- {name:'Railroad Square',town:'Santa Rosa',open:6.5,close:16,wait:9,c:'#2f6b66',feat:'Drive-up pickup window'},
  {name:'The Roastery',town:'Healdsburg',open:7,close:15,wait:4,c:'#24332c',feat:'Tastings · Classes · Bean pickup'}
 ];
 const MENU=[
@@ -1091,7 +1090,7 @@ cd.style.left=cd.style.top='0';
 const INV=C.map((c,i)=>({id:c.id,name:c.name,c:c.c,green:[140,260,95,640,820,180][i],roasted:[9,22,6,62,48,14][i],bags:c.stock,pd:[7,3,5,16,14,4][i],web:true}));
 const WS=[{n:'Healdsburg Wine Co.',t:'Gold',o:'20 lb Espresso No. 9',d:'Tue',b:2480,s:'Current'},{n:'Plaza Bakery',t:'Silver',o:"12 lb Mrs. Garland's",d:'Mon/Thu',b:860,s:'Current'},{n:'Sonoma Tech Campus',t:'Gold',o:'40 lb mixed',d:'Wed',b:5200,s:'Current'},{n:'Dry Creek Inn',t:'Silver',o:'15 lb Opening Night',d:'Fri',b:1340,s:'Past due'},{n:'Windsor Grocery',t:'Silver',o:'24 × 12 oz retail',d:'Mon',b:1780,s:'Past due'},{n:'Petaluma Kitchen',t:'Gold',o:'30 lb mixed',d:'Thu',b:6160,s:'Current'}];
 let PEND=[{n:'Guerneville Surf Shack',t:'Café',v:'10–25 lb',w:'2 h ago'},{n:'Cloverdale Hotel',t:'Hotel',v:'25–60 lb',w:'Yesterday'}];
-const FEEDSEED=[['Pickup','Sam R. · Oat latte, croissant','Healdsburg Plaza','$10.25'],['Web','Priya K. · Nano Genji ×2','Ships tomorrow','$44'],['Subscription','Renewal · Roaster\'s Choice','Auto-charged','$18'],['Wholesale','Sonoma Tech · 40 lb mixed','Delivery Wed','$520'],['Pickup','Jordan T. · Cold brew, mocha','Railroad Square','$11'],['Web','Alex M. · Espresso No. 9 2 lb','Ships tomorrow','$48']];
+const FEEDSEED=[['Pickup','Sam R. · Oat latte, croissant','Healdsburg Plaza','$10.25'],['Web','Priya K. · Nano Genji ×2','Ships tomorrow','$44'],['Subscription','Renewal · Roaster\'s Choice','Auto-charged','$18'],['Wholesale','Sonoma Tech · 40 lb mixed','Delivery Wed','$520'],['Pickup','Jordan T. · Cold brew, mocha','The Roastery','$11'],['Web','Alex M. · Espresso No. 9 2 lb','Ships tomorrow','$48']];
 const NAMES=['Maya','Leo','Ana','Theo','Iris','Ben','Noor','Sol','Kai','June'];
 function invS(r){const d=r.bags/r.pd;return d<2?['bad','Reorder','var(--bad)']:d<4?['lo','Low','var(--warn)']:['ok','Healthy','var(--ok)']}
 function renderInv(){$('#invB').innerHTML=INV.map((r,i)=>{const[s,l,col]=invS(r);const d=r.bags/r.pd;return `<tr><td><span class="cdot" style="--c:${r.c}"></span>${r.name}</td><td class="n">${r.green}</td><td class="n">${r.roasted}</td><td class="n"><span class="mstep"><button type="button" data-inv="${i}|-1" aria-label="Decrease">−</button><span>${r.bags}</span><button type="button" data-inv="${i}|1" aria-label="Increase">+</button></span></td><td class="n">${r.pd}</td><td class="n"><span class="days">${d.toFixed(1)}<span class="bar"><i style="width:${Math.min(100,d/10*100)}%;background:${col}"></i></span></span></td><td><span class="st ${s}">${l}</span></td><td><input type="checkbox" data-web="${i}" ${r.web?'checked':''} aria-label="Show ${r.name} online"></td></tr>`}).join('');$('#nLow').textContent=INV.filter(r=>invS(r)[0]!=='ok').length;renderAttn()}
@@ -1104,7 +1103,7 @@ function feedItem(o,isNew){const li=document.createElement('li');if(isNew)li.cla
 function renderFeed(){const f=$('#feed');f.innerHTML='';FEEDSEED.forEach((o,i)=>f.appendChild(feedItem([...o,`${(i+1)*4} min ago`])))}
 let rev=4862,pick=142;
 setInterval(()=>{if(!document.body.classList.contains('is-admin'))return;const ch=['Pickup','Pickup','Web','Subscription'][Math.floor(Math.random()*4)];const nm=NAMES[Math.floor(Math.random()*NAMES.length)];const m=MENU[Math.floor(Math.random()*MENU.length)];const c=C[Math.floor(Math.random()*C.length)];
-  const o=ch==='Pickup'?[ch,`${nm} · ${m.name}`,CAFES[Math.floor(Math.random()*3)].name,money(m.p)]:ch==='Web'?[ch,`${nm} · ${c.short} 12 oz`,'Ships tomorrow',money(c.price)]:[ch,`New · ${c.short} every 2 wks`,'First ship Thu',money(c.price*.9)];
+  const o=ch==='Pickup'?[ch,`${nm} · ${m.name}`,CAFES[Math.floor(Math.random()*CAFES.length)].name,money(m.p)]:ch==='Web'?[ch,`${nm} · ${c.short} 12 oz`,'Ships tomorrow',money(c.price)]:[ch,`New · ${c.short} every 2 wks`,'First ship Thu',money(c.price*.9)];
   $('#feed').prepend(feedItem(o,true));if($('#feed').children.length>14)$('#feed').lastChild.remove();rev+=parseFloat(o[3].slice(1));if(ch==='Pickup')pick++;$('#kRev').textContent='$'+Math.round(rev).toLocaleString();$('#kPick').textContent=pick},4200);
 /* roast curve */
 let rt=3.2;
