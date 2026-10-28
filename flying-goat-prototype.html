@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flying Goat Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f3ec; --surface:#fffdf9; --surface-2:#efe8dc; --ink:#1c1a17; --ink-2:#55504a; --ink-3:#8a8279;
+  --line:#e2d9cb; --accent:#c4522a; --accent-ink:#fff; --accent-soft:#f6dfd3; --green:#2f6b4f; --green-soft:#dcebe2;
+  --amber:#b07a12; --amber-soft:#f5e8c8; --red:#b3261e; --red-soft:#f7dcd9;
+  --radius:14px; --shadow:0 1px 2px rgba(28,26,23,.06),0 8px 24px rgba(28,26,23,.06);
+  --serif:'Fraunces',Georgia,serif; --sans:'Instrument Sans',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit;cursor:pointer}
+img{max-width:100%}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+@media (max-width:640px){.wrap{padding:0 16px}}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:999px;padding:12px 20px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .12s,background .15s,border-color .15s;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-primary:hover{background:#ad4521}
+.btn-dark{background:var(--ink);color:var(--bg)}
+.btn-dark:hover{background:#000}
+.btn-ghost{background:transparent;border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--ink)}
+.btn-sm{padding:8px 14px;font-size:14px}
+.btn-block{width:100%}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--accent)}
+h1,h2,h3{font-family:var(--serif);font-weight:600;letter-spacing:-.01em;margin:0}
+h2{font-size:clamp(28px,4vw,40px);line-height:1.1}
+.muted{color:var(--ink-2)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--ink-2)}
+.pill.green{background:var(--green-soft);color:var(--green)}
+.pill.amber{background:var(--amber-soft);color:var(--amber)}
+.pill.red{background:var(--red-soft);color:var(--red)}
+.pill.accent{background:var(--accent-soft);color:var(--accent)}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;display:inline-block}
+
+/* proto ribbon */
+.proto{background:var(--ink);color:#cfc6b8;font-size:13px;text-align:center;padding:6px 16px}
+.proto b{color:#fff}
+.proto button{background:none;border:0;color:#fff;text-decoration:underline;padding:0 4px}
+
+/* header */
+header.site{position:sticky;top:0;z-index:40;background:rgba(247,243,236,.92);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.hdr{display:flex;align-items:center;gap:24px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--serif);font-weight:700;font-size:21px;letter-spacing:-.02em}
+.logo svg{width:34px;height:34px}
+nav.main{display:flex;gap:4px;margin-left:8px}
+nav.main a{text-decoration:none;font-weight:500;padding:8px 12px;border-radius:999px;color:var(--ink-2)}
+nav.main a:hover{background:var(--surface-2);color:var(--ink)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:inline-grid;place-items:center;position:relative}
+.icon-btn:hover{border-color:var(--ink)}
+.icon-btn svg{width:20px;height:20px}
+.badge{position:absolute;top:-4px;right:-4px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center}
+.badge[data-n="0"]{display:none}
+.logo,nav.main a{white-space:nowrap}
+@media (max-width:1080px){nav.main{display:none}}
+@media (max-width:900px){.hdr .hide-m{display:none}}
+
+/* hero */
+.hero{padding:56px 0 40px}
+.hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(40px,6vw,72px);line-height:1;letter-spacing:-.03em}
+.hero h1 em{font-style:italic;color:var(--accent);font-weight:400}
+.hero p.lead{font-size:19px;color:var(--ink-2);max-width:520px;margin:20px 0 28px}
+.hero-status{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.intent{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.intent button{all:unset;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:6px;min-height:150px;box-shadow:var(--shadow);transition:transform .15s,border-color .15s}
+.intent button:hover{transform:translateY(-2px);border-color:var(--ink)}
+.intent button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.intent .ic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);margin-bottom:auto}
+.intent .ic svg{width:22px;height:22px}
+.intent b{font-size:17px}
+.intent span{font-size:14px;color:var(--ink-2)}
+.intent .primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.intent .primary span{color:#bdb4a6}
+.intent .primary .ic{background:var(--accent);color:#fff}
+@media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:28px}.hero{padding:32px 0 24px}}
+
+/* trust strip */
+.trust{border-block:1px solid var(--line);background:var(--surface)}
+.trust .wrap{display:flex;gap:32px;justify-content:space-between;padding-block:16px;flex-wrap:wrap}
+.trust div{display:flex;gap:10px;align-items:center;font-size:14px;font-weight:500;color:var(--ink-2)}
+.trust svg{width:18px;height:18px;color:var(--green);flex:none}
+
+section.block{padding:72px 0}
+.sec-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.sec-head p{margin:8px 0 0;color:var(--ink-2);max-width:560px}
+
+/* shop toolbar */
+.toolbar{position:sticky;top:68px;z-index:20;background:var(--bg);padding:12px 0;border-bottom:1px solid var(--line);margin-bottom:24px}
+.tb-row{display:flex;gap:12px;align-items:center}
+.search{flex:1;max-width:320px;position:relative}
+.search input{width:100%;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:10px 14px 10px 38px;font:inherit;font-size:15px}
+.search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--ink-3)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:1;padding:2px}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:8px 14px;font-size:14px;font-weight:500;white-space:nowrap}
+.chip:hover{border-color:var(--ink)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.quiz{border-style:dashed;color:var(--accent);border-color:var(--accent)}
+select.sort{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 12px;font:inherit;font-size:14px}
+.result-line{font-size:14px;color:var(--ink-2);margin:10px 0 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.result-line button{background:none;border:0;text-decoration:underline;color:var(--ink);padding:0;font-size:14px}
+@media (max-width:760px){.tb-row{flex-wrap:wrap}.search{max-width:none;flex-basis:100%}.chips{order:3;flex-basis:100%}}
+
+/* product grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+.card-media{position:relative;aspect-ratio:5/4;display:grid;place-items:center;cursor:pointer;border:0;padding:0;width:100%}
+.card-media .tags{position:absolute;top:12px;left:12px;display:flex;gap:6px;flex-wrap:wrap}
+.card-media .tags .pill{background:rgba(255,253,249,.92)}
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.card-title{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.card-title h3{font-size:21px;line-height:1.15}
+.card-title h3 button{all:unset;cursor:pointer}
+.card-title h3 button:hover{text-decoration:underline}
+.price{font-weight:700;font-size:17px;white-space:nowrap}
+.price s{color:var(--ink-3);font-weight:500;font-size:14px;margin-right:4px}
+.notes{font-size:14px;color:var(--ink-2);margin-top:-6px}
+.meta{display:flex;gap:6px;flex-wrap:wrap}
+.profile{display:grid;grid-template-columns:72px 1fr;gap:4px 10px;font-size:12px;color:var(--ink-3);align-items:center}
+.bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ink-2);border-radius:3px}
+.seg{display:flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;border:0;background:transparent;border-radius:8px;padding:7px 4px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.grind{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 10px;background:var(--surface);font:inherit;font-size:14px}
+.sub-toggle{display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 12px;border-radius:10px;background:var(--green-soft);color:var(--green);cursor:pointer;user-select:none}
+.sub-toggle input{accent-color:var(--green);width:18px;height:18px;margin:0}
+.sub-toggle b{margin-left:auto}
+.card .actions{margin-top:auto}
+.fresh{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;font-weight:600}
+.low{color:var(--amber)}
+.empty{grid-column:1/-1;text-align:center;padding:48px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--ink-2)}
+
+/* bag illustration */
+.bag{width:46%;max-width:150px;aspect-ratio:3/4;position:relative;border-radius:6px 6px 10px 10px;box-shadow:0 18px 30px -12px rgba(0,0,0,.35);transition:transform .25s}
+.card-media:hover .bag{transform:translateY(-4px) rotate(-1.5deg)}
+.bag::before{content:"";position:absolute;inset:0 0 auto 0;height:14%;background:repeating-linear-gradient(90deg,rgba(0,0,0,.08) 0 3px,transparent 3px 7px);border-radius:6px 6px 0 0}
+.bag .lbl{position:absolute;left:12%;right:12%;top:28%;bottom:16%;background:var(--surface);border-radius:4px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:6px;gap:4px}
+.bag .lbl small{font-size:8px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.bag .lbl strong{font-family:var(--serif);font-size:15px;line-height:1.05;color:var(--ink)}
+.bag .lbl svg{width:22px;height:22px}
+
+/* finder band */
+.band{background:var(--ink);color:var(--bg);border-radius:24px;padding:40px;display:grid;grid-template-columns:1fr 1.2fr;gap:40px;align-items:center}
+.band h2{color:#fff}
+.band p{color:#bdb4a6}
+.quiz-box{background:#2a2723;border-radius:18px;padding:24px}
+.quiz-step{font-size:13px;color:#a69c8e;margin-bottom:8px}
+.quiz-q{font-family:var(--serif);font-size:22px;margin-bottom:16px;color:#fff}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.quiz-opts button{border:1px solid #4a453e;background:transparent;color:#fff;border-radius:12px;padding:14px;text-align:left;font-weight:500}
+.quiz-opts button:hover{border-color:var(--accent);background:rgba(196,82,42,.12)}
+.quiz-opts button small{display:block;color:#a69c8e;font-weight:400;font-size:13px}
+.progress{height:4px;background:#4a453e;border-radius:2px;margin-bottom:20px;overflow:hidden}
+.progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
+@media (max-width:900px){.band{grid-template-columns:1fr;padding:24px;gap:24px}.quiz-opts{grid-template-columns:1fr}}
+
+/* subscriptions */
+.sub-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:24px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--shadow)}
+.panel h3{font-size:22px;margin-bottom:4px}
+.opt-list{display:grid;gap:10px;margin:16px 0 24px}
+.opt{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:14px 16px;cursor:pointer}
+.opt:has(input:checked){border-color:var(--ink);background:var(--surface-2)}
+.opt input{margin-top:4px;accent-color:var(--ink);width:18px;height:18px}
+.opt b{display:block}
+.opt span{font-size:14px;color:var(--ink-2)}
+.opt em{margin-left:auto;font-style:normal;font-weight:700;white-space:nowrap}
+.label{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:18px 0 8px}
+.summary-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.summary-line:last-of-type{border:0}
+.big-price{font-family:var(--serif);font-size:44px;font-weight:600;line-height:1}
+.perks{list-style:none;padding:0;margin:20px 0;display:grid;gap:10px}
+.perks li{display:flex;gap:10px;font-size:15px}
+.perks svg{width:20px;height:20px;color:var(--green);flex:none}
+@media (max-width:900px){.sub-grid{grid-template-columns:1fr}}
+
+/* cafes */
+.cafe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.cafe{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.cafe-art{height:150px;position:relative;overflow:hidden}
+.cafe-body{padding:20px;display:flex;flex-direction:column;gap:10px;flex:1}
+.cafe-body h3{font-size:22px}
+.cafe-body .row{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--ink-2)}
+.cafe-body .row svg{width:16px;height:16px;flex:none}
+.cafe-body .actions{display:flex;gap:8px;margin-top:auto;padding-top:8px;flex-wrap:wrap}
+
+/* wholesale */
+.ws{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+.ws-list{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.ws-list div{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.ws-list b{display:block;margin-bottom:4px}
+.ws-list span{font-size:14px;color:var(--ink-2)}
+form.grid-form{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+form.grid-form .full{grid-column:1/-1}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;font-size:15px;background:var(--bg)}
+.field textarea{min-height:80px;resize:vertical}
+@media (max-width:900px){.ws{grid-template-columns:1fr}.ws-list{grid-template-columns:1fr}form.grid-form{grid-template-columns:1fr}}
+
+/* story */
+.story{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.story article{border-top:2px solid var(--ink);padding-top:16px}
+.story h3{font-size:22px;margin:8px 0}
+.story p{color:var(--ink-2);margin:0}
+@media (max-width:900px){.story{grid-template-columns:1fr}}
+
+/* footer */
+footer{background:var(--ink);color:#cfc6b8;padding:64px 0 120px;margin-top:40px}
+.foot{display:grid;grid-template-columns:1.4fr repeat(4,1fr);gap:32px}
+.foot h4{color:#fff;font-size:14px;margin:0 0 12px}
+.foot a{display:block;text-decoration:none;font-size:14px;padding:4px 0;color:#cfc6b8}
+.foot a:hover{color:#fff}
+.news{display:flex;gap:8px;margin-top:16px}
+.news input{flex:1;min-width:0;border:1px solid #4a453e;background:#2a2723;color:#fff;border-radius:999px;padding:11px 16px;font:inherit}
+.foot-bottom{border-top:1px solid #3a3631;margin-top:40px;padding-top:20px;font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:900px){.foot{grid-template-columns:1fr 1fr}.foot>div:first-child{grid-column:1/-1}}
+
+/* mobile action bar */
+.mbar{display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:45;background:var(--ink);border-radius:18px;padding:6px;box-shadow:0 12px 30px rgba(0,0,0,.3)}
+.mbar button{flex:1;background:none;border:0;color:#cfc6b8;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:600;padding:8px 4px;border-radius:12px;position:relative}
+.mbar button svg{width:22px;height:22px}
+.mbar button.hot{background:var(--accent);color:#fff}
+.mbar .badge{top:2px;right:calc(50% - 22px)}
+@media (max-width:900px){.mbar{display:flex}}
+
+/* drawers & modals */
+.scrim{position:fixed;inset:0;background:rgba(28,26,23,.45);z-index:60;opacity:0;pointer-events:none;transition:opacity .2s}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);z-index:70;transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid var(--line)}
+.drawer-head h3{font-size:22px}
+.drawer-body{flex:1;overflow-y:auto;padding:20px}
+.drawer-foot{border-top:1px solid var(--line);padding:16px 20px;display:grid;gap:10px}
+.ship-bar{background:var(--surface-2);border-radius:12px;padding:12px 14px;font-size:14px;margin-bottom:16px}
+.ship-bar .bar{height:8px;margin-top:8px;background:#fff}
+.ship-bar .bar i{background:var(--green);transition:width .3s}
+.line-item{display:grid;grid-template-columns:56px 1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);align-items:center}
+.thumb{width:56px;height:56px;border-radius:10px;display:grid;place-items:center}
+.thumb i{width:24px;height:32px;border-radius:3px 3px 5px 5px;display:block;box-shadow:0 4px 8px rgba(0,0,0,.2)}
+.line-item small{color:var(--ink-2);font-size:13px;display:block}
+.qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:999px;margin-top:6px}
+.qty button{border:0;background:none;width:28px;height:28px;font-size:16px}
+.qty span{min-width:20px;text-align:center;font-size:14px;font-weight:600}
+.modal{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:16px;pointer-events:none}
+.modal .sheet{background:var(--surface);border-radius:20px;width:min(860px,100%);max-height:calc(100vh - 32px);overflow:auto;transform:translateY(20px) scale(.98);opacity:0;transition:.22s;pointer-events:none;position:relative}
+.modal.on .sheet{transform:none;opacity:1;pointer-events:auto}
+.close{position:absolute;top:14px;right:14px;z-index:2}
+.pdp{display:grid;grid-template-columns:1fr 1fr}
+.pdp-media{display:grid;place-items:center;min-height:380px;border-radius:20px 0 0 20px}
+.pdp-media .bag{width:55%;max-width:200px}
+.pdp-media .bag .lbl strong{font-size:20px}
+.pdp-info{padding:32px;display:flex;flex-direction:column;gap:14px}
+.pdp-info h2{font-size:34px}
+.specs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.specs div{background:var(--bg);border-radius:10px;padding:10px 12px}
+.specs small{display:block;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.recipe{border:1px dashed var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+@media (max-width:760px){.pdp{grid-template-columns:1fr}.pdp-media{min-height:240px;border-radius:20px 20px 0 0}.pdp-info{padding:20px}}
+
+/* order ahead */
+.oa{padding:28px}
+.oa-head{display:flex;gap:12px;flex-wrap:wrap;align-items:end;margin-bottom:20px;padding-right:48px}
+.oa-head .field{flex:1;min-width:180px}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.menu-item{border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:4px;background:var(--bg)}
+.menu-item b{font-size:15px}
+.menu-item span{font-size:13px;color:var(--ink-2)}
+.menu-item .row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.slots{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.slots button{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;white-space:nowrap}
+.slots button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.oa-foot{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);margin:24px -28px -28px;padding:16px 28px;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-weight:500;z-index:90;opacity:0;transition:.25s;pointer-events:none;display:flex;gap:10px;align-items:center;max-width:calc(100% - 32px)}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+@media (min-width:901px){.toast{bottom:28px}}
+
+/* ADMIN */
+#admin{display:none;min-height:100vh}
+body.is-admin #store{display:none}
+body.is-admin #admin{display:grid;grid-template-columns:240px 1fr}
+.side{background:var(--ink);color:#cfc6b8;padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:4px}
+.side .logo{color:#fff;margin:0 8px 20px;font-size:18px}
+.side button{all:unset;cursor:pointer;display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:10px;font-size:14px;font-weight:500}
+.side button:hover{background:#2a2723;color:#fff}
+.side button[aria-current="true"]{background:#2f2b26;color:#fff}
+.side button svg{width:18px;height:18px}
+.side .count{margin-left:auto;background:var(--accent);color:#fff;font-size:11px;border-radius:999px;padding:1px 7px}
+.side .bottom{margin-top:auto;border-top:1px solid #3a3631;padding-top:12px}
+.adm-main{padding:28px 32px;min-width:0}
+.adm-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.adm-top h1{font-size:30px}
+.sync{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:8px}
+.sync .dot{color:var(--green)}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+.kpi small{color:var(--ink-2);font-size:13px;font-weight:500}
+.kpi b{display:block;font-size:28px;font-family:var(--serif);font-weight:600;margin:4px 0}
+.kpi .delta{font-size:13px;font-weight:600;color:var(--green)}
+.kpi .delta.neg{color:var(--red)}
+.adm-grid{display:grid;grid-template-columns:1.5fr 1fr;gap:20px}
+.card-a{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card-a .hd{display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.card-a .hd h3{font-family:var(--sans);font-size:16px;font-weight:700}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:700;padding:10px 18px;background:var(--bg);white-space:nowrap}
+td{padding:12px 18px;border-top:1px solid var(--line);white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr:hover td{background:#fbf8f2}
+.stepper{display:inline-flex;align-items:center;gap:4px}
+.stepper button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--surface);font-size:14px;line-height:1}
+.stepper span{min-width:36px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600}
+.chart{display:flex;align-items:flex-end;gap:8px;height:160px;padding:18px}
+.chart .col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;height:100%}
+.chart .stack{width:100%;max-width:34px;display:flex;flex-direction:column-reverse;border-radius:6px 6px 0 0;overflow:hidden}
+.chart small{font-size:11px;color:var(--ink-3)}
+.legend{display:flex;gap:14px;font-size:12px;color:var(--ink-2);padding:0 18px 16px;flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;gap:12px;align-items:center;padding:12px 18px;border-top:1px solid var(--line);font-size:14px}
+.feed li:first-child{border-top:0}
+.feed .who{flex:1;min-width:0}
+.feed .who small{display:block;color:var(--ink-3);font-size:12px}
+.adm-view{display:none}
+.adm-view.on{display:block}
+.adm-tabs{display:none;gap:6px;overflow-x:auto;margin-bottom:16px}
+.roadmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;padding:18px}
+.roadmap div{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--bg)}
+.roadmap b{display:block;margin:6px 0 4px}
+.roadmap span{font-size:13px;color:var(--ink-2)}
+@media (max-width:1100px){.kpis{grid-template-columns:1fr 1fr}.adm-grid{grid-template-columns:1fr}}
+@media (max-width:900px){body.is-admin #admin{grid-template-columns:1fr}.side{display:none}.adm-tabs{display:flex}.adm-main{padding:20px 16px 100px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<!-- ==================== STOREFRONT ==================== -->
+<div id="store">
+  <div class="proto"><b>Prototype</b> · Flying Goat Coffee redesign concept · <button type="button" data-go="admin">Open admin panel →</button></div>
+
+  <header class="site">
+    <div class="wrap hdr">
+      <a class="logo" href="#top" aria-label="Flying Goat Coffee home">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#1c1a17"/><path d="M11 25c3-1 5-4 6-8l2 3 3-7 2 8c2 2 4 3 6 3" fill="none" stroke="#f7f3ec" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 14c2-3 5-4 7-3M27 14c-2-3-5-4-7-3" fill="none" stroke="#c4522a" stroke-width="2.2" stroke-linecap="round"/></svg>
+        Flying Goat
+      </a>
+      <nav class="main" aria-label="Primary">
+        <a href="#shop">Shop coffee</a>
+        <a href="#subscribe">Subscriptions</a>
+        <a href="#cafes">Cafés</a>
+        <a href="#wholesale">Wholesale</a>
+        <a href="#story">Our story</a>
+      </nav>
+      <div class="hdr-right">
+        <button class="btn btn-primary btn-sm hide-m" type="button" data-open="order">Order ahead</button>
+        <button class="icon-btn hide-m" type="button" aria-label="Search coffee" data-focus-search><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></button>
+        <button class="icon-btn" type="button" aria-label="Account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg></button>
+        <button class="icon-btn" type="button" aria-label="Open cart" data-open="cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg><span class="badge" data-cart-count data-n="0">0</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Roasted in Healdsburg, Sonoma County</div>
+          <h1>Sonoma's coffee, <em>roasted this week</em> for you.</h1>
+          <p class="lead">Order a latte for pickup in two taps, get beans roasted days ago, or set up a subscription and never run out.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <a class="btn btn-dark" href="#shop">Shop coffee</a>
+            <a class="btn btn-ghost" href="#finder">Help me choose</a>
+          </div>
+          <div class="hero-status" id="heroStatus"></div>
+        </div>
+        <div class="intent" role="group" aria-label="What would you like to do?">
+          <button type="button" class="primary" data-open="order">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V9Z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17M8 3v3M12 3v3"/></svg></span>
+            <b>Order ahead</b><span id="intentPickup">Ready in ~10 min</span>
+          </button>
+          <button type="button" data-scroll="#shop">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12l1 16H5L6 4Z"/><path d="M9 9h6"/></svg></span>
+            <b>Buy beans</b><span>Ships next business day</span>
+          </button>
+          <button type="button" data-scroll="#subscribe">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.3-2.3A5.5 5.5 0 0 0 6.5 12"/><path d="M20 12a8 8 0 0 1-14 5l-2 2v-6h6l-2.3 2.3A5.5 5.5 0 0 0 17.5 12"/></svg></span>
+            <b>Subscribe &amp; save</b><span>10% off · skip anytime</span>
+          </button>
+          <button type="button" data-scroll="#wholesale">
+            <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/></svg></span>
+            <b>Wholesale</b><span>Cafés, restaurants, offices</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust">
+      <div class="wrap">
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Roast date on every bag</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Free shipping over $40</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Free local pickup at any café</div>
+        <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Don't love it? We'll replace it</div>
+      </div>
+    </div>
+
+    <!-- SHOP -->
+    <section class="block" id="shop" style="padding-top:56px">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="eyebrow">Shop coffee</div>
+            <h2>This week's roasts</h2>
+            <p>Every coffee shows its roast date, flavor profile and how much is left. Pick a size and grind right on the card.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="tb-row">
+            <label class="search"><span class="sr">Search coffee</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+              <input id="q" type="search" placeholder="Search by name, origin or flavor…" autocomplete="off">
+            </label>
+            <div class="chips" id="chips" role="group" aria-label="Filter coffee"></div>
+            <label><span class="sr">Sort</span>
+              <select class="sort" id="sort">
+                <option value="feat">Featured</option>
+                <option value="fresh">Freshest roast</option>
+                <option value="lo">Price: low to high</option>
+                <option value="hi">Price: high to low</option>
+              </select>
+            </label>
+          </div>
+          <div class="result-line" id="resultLine"></div>
+        </div>
+        <div class="grid" id="grid"></div>
+      </div>
+    </section>
+
+    <!-- FINDER -->
+    <section class="block" id="finder" style="padding-top:0">
+      <div class="wrap">
+        <div class="band">
+          <div>
+            <div class="eyebrow" style="color:#f0a283">Coffee finder</div>
+            <h2>Not sure what to get? Three questions.</h2>
+            <p>Tell us how you brew and what you like. We'll filter the shop to the coffees that fit, and you can still change the filters yourself.</p>
+          </div>
+          <div class="quiz-box" id="quiz" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUBSCRIBE -->
+    <section class="block" id="subscribe" style="padding-top:0">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="eyebrow">Subscriptions</div>
+            <h2>Build yours in 30 seconds</h2>
+            <p>Pick what you want and how often. Skip, swap or pause anytime from your account, or just reply to the shipping email.</p>
+          </div>
+        </div>
+        <div class="sub-grid">
+          <div class="panel">
+            <h3>1. What should we send?</h3>
+            <div class="opt-list" id="subPlan">
+              <label class="opt"><input type="radio" name="plan" value="choice" checked><div><b>Roaster's Choice</b><span>A different single origin every shipment, picked by our roasters.</span></div><em>$20</em></label>
+              <label class="opt"><input type="radio" name="plan" value="espresso"><div><b>Espresso No. 9</b><span>Our everyday espresso blend. Great with milk.</span></div><em>$18</em></label>
+              <label class="opt"><input type="radio" name="plan" value="garland"><div><b>Mrs. Garland's Blend</b><span>Smooth, chocolatey drip coffee for every morning.</span></div><em>$18</em></label>
+              <label class="opt"><input type="radio" name="plan" value="decaf"><div><b>Opening Night Decaf</b><span>Full flavor without the caffeine.</span></div><em>$19.80</em></label>
+            </div>
+            <div class="label">2. How much &amp; how often</div>
+            <div class="seg" id="subQty" style="margin-bottom:10px">
+              <button type="button" data-v="1" aria-pressed="true">1 bag</button>
+              <button type="button" data-v="2" aria-pressed="false">2 bags</button>
+              <button type="button" data-v="3" aria-pressed="false">3 bags</button>
+            </div>
+            <div class="seg" id="subFreq">
+              <button type="button" data-v="1" aria-pressed="false">Every week</button>
+              <button type="button" data-v="2" aria-pressed="true">Every 2 weeks</button>
+              <button type="button" data-v="4" aria-pressed="false">Monthly</button>
+            </div>
+            <div class="label">3. Grind</div>
+            <select class="grind" id="subGrind"><option>Whole bean</option><option>Drip / pour over</option><option>Espresso</option><option>French press</option><option>Cold brew</option></select>
+          </div>
+          <div class="panel" style="background:var(--surface-2)">
+            <div class="eyebrow" style="color:var(--green)">Your subscription</div>
+            <div style="display:flex;align-items:baseline;gap:8px;margin:12px 0 4px"><span class="big-price" id="subPrice">$20</span><span class="muted" id="subPer">per shipment</span></div>
+            <div class="muted" id="subMonthly" style="font-size:14px"></div>
+            <div style="margin-top:16px" id="subSummary"></div>
+            <ul class="perks">
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>10% off every bag, plus free shipping</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Shipped within 48 hours of roasting</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>Skip, swap or cancel in one click</li>
+              <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>A free drink at any café each month</li>
+            </ul>
+            <button class="btn btn-primary btn-block" type="button" id="subStart">Start subscription</button>
+            <button class="btn btn-ghost btn-block" type="button" style="margin-top:10px" id="subGift">Give it as a gift instead</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAFES -->
+    <section class="block" id="cafes" style="padding-top:0">
+      <div class="wrap">
+        <div class="sec-head">
+          <div>
+            <div class="eyebrow">Cafés</div>
+            <h2>Skip the line in Sonoma County</h2>
+            <p>See which cafés are open right now, then order ahead and pick up at the counter.</p>
+          </div>
+          <button class="btn btn-dark" type="button" data-open="order">Start a pickup order</button>
+        </div>
+        <div class="cafe-grid" id="cafeGrid"></div>
+      </div>
+    </section>
+
+    <!-- WHOLESALE -->
+    <section class="block" id="wholesale" style="padding-top:0">
+      <div class="wrap ws">
+        <div>
+          <div class="eyebrow">Wholesale</div>
+          <h2>A roasting partner for cafés, restaurants, wineries and offices</h2>
+          <p class="muted" style="font-size:17px">Wholesale accounts get their own portal with account pricing, standing weekly orders, net-30 invoicing and one-click reorder. You can see exactly when your coffee was roasted and when it ships.</p>
+          <div class="ws-list">
+            <div><b>Order in under a minute</b><span>Standing orders, reorder past invoices, set delivery days.</span></div>
+            <div><b>Account pricing</b><span>Volume tiers shown up front, no back-and-forth on quotes.</span></div>
+            <div><b>Training &amp; equipment</b><span>Barista training, espresso setup and service support.</span></div>
+            <div><b>Local delivery</b><span>Our own vans in Sonoma &amp; Marin, freight everywhere else.</span></div>
+          </div>
+          <p style="margin-top:20px"><a class="btn btn-ghost btn-sm" href="#" data-go="admin">Already a partner? Log in to the portal →</a></p>
+        </div>
+        <div class="panel">
+          <h3>Apply for a wholesale account</h3>
+          <p class="muted" style="margin:4px 0 18px;font-size:14px">We reply within one business day.</p>
+          <form class="grid-form" id="wsForm">
+            <div class="field"><label for="ws1">Business name</label><input id="ws1" required></div>
+            <div class="field"><label for="ws2">Contact name</label><input id="ws2" required></div>
+            <div class="field"><label for="ws3">Email</label><input id="ws3" type="email" required></div>
+            <div class="field"><label for="ws4">Business type</label><select id="ws4"><option>Café</option><option>Restaurant</option><option>Winery / tasting room</option><option>Office</option><option>Grocery / retail</option><option>Hotel</option></select></div>
+            <div class="field full"><label for="ws5">Estimated volume per week</label><select id="ws5"><option>Under 10 lb</option><option>10–25 lb</option><option>25–60 lb</option><option>60+ lb</option></select></div>
+            <div class="field full"><label for="ws6">Anything we should know?</label><textarea id="ws6" placeholder="Equipment, opening date, coffees you like…"></textarea></div>
+            <div class="full"><button class="btn btn-dark btn-block" type="submit">Submit application</button></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- STORY -->
+    <section class="block" id="story" style="padding-top:0">
+      <div class="wrap">
+        <div class="sec-head"><div><div class="eyebrow">Our story</div><h2>Small batches, long relationships</h2></div></div>
+        <div class="story">
+          <article><span class="pill">Roastery</span><h3>Roasted in Healdsburg</h3><p>Every batch is roasted by hand in Sonoma County and shipped within 48 hours, so the roast date on your bag is always recent.</p></article>
+          <article><span class="pill">Sourcing</span><h3>Producers we know by name</h3><p>We buy from the same farms year after year, so you can follow their harvests from season to season.</p></article>
+          <article><span class="pill">Learn</span><h3>Brew guides &amp; classes</h3><p>Step-by-step recipes for pour over, espresso and cold brew, plus cuppings and latte art classes at the roastery.</p></article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div class="foot">
+        <div>
+          <a class="logo" href="#top" style="color:#fff">Flying Goat</a>
+          <p style="font-size:14px;max-width:320px">Get first access to new roasts and limited lots. One email a week, at most.</p>
+          <form class="news" id="newsForm"><label class="sr" for="nl">Email</label><input id="nl" type="email" placeholder="you@email.com" required><button class="btn btn-primary btn-sm" type="submit">Join</button></form>
+        </div>
+        <div><h4>Shop</h4><a href="#shop">All coffee</a><a href="#subscribe">Subscriptions</a><a href="#">Gift cards</a><a href="#">Brewing gear</a><a href="#">Merch</a></div>
+        <div><h4>Visit</h4><a href="#cafes">Cafés &amp; hours</a><a href="#" data-open="order">Order ahead</a><a href="#">Classes</a><a href="#">Events</a></div>
+        <div><h4>Business</h4><a href="#wholesale">Wholesale</a><a href="#">Office coffee</a><a href="#" data-go="admin">Partner portal</a><a href="#">Careers</a></div>
+        <div><h4>Help</h4><a href="#">Shipping &amp; returns</a><a href="#">FAQ</a><a href="#">Manage subscription</a><a href="#">Contact us</a><a href="#">Accessibility</a></div>
+      </div>
+      <div class="foot-bottom"><span>© 2026 Flying Goat Coffee · Prototype concept</span><span>Privacy · Terms</span></div>
+    </div>
+  </footer>
+
+  <nav class="mbar" aria-label="Quick actions">
+    <button type="button" data-scroll="#shop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 4h12l1 16H5L6 4Z"/></svg>Shop</button>
+    <button type="button" class="hot" data-open="order"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 9h12v5a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5V9Z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/></svg>Order ahead</button>
+    <button type="button" data-scroll="#cafes"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>Cafés</button>
+    <button type="button" data-open="cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>Cart<span class="badge" data-cart-count data-n="0">0</span></button>
+  </nav>
+</div>
+
+<!-- ==================== ADMIN ==================== -->
+<div id="admin">
+  <aside class="side">
+    <div class="logo">Flying Goat <span class="pill" style="background:#2f2b26;color:#cfc6b8">Admin</span></div>
+    <button type="button" data-view="dash" aria-current="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>Dashboard</button>
+    <button type="button" data-view="inv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4Z"/><path d="M3 7v10l9 4 9-4V7"/></svg>Inventory<span class="count" id="lowCount">0</span></button>
+    <button type="button" data-view="roast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c3 4-2 6 1 10M8 6c2 3-1 4 1 7M16 6c2 3-1 4 1 7"/><path d="M4 17h16l-2 4H6l-2-4Z"/></svg>Roast plan</button>
+    <button type="button" data-view="ws"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V9l9-6 9 6v12"/><path d="M9 21v-6h6v6"/></svg>Wholesale<span class="count" id="pendCount">0</span></button>
+    <button type="button" data-view="orders"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 4h14v16l-3-2-2 2-2-2-2 2-2-2-3 2V4Z"/><path d="M9 9h6M9 13h6"/></svg>Orders</button>
+    <button type="button" data-view="road"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20 10 4h4l6 16"/><path d="M12 8v2M12 13v2"/></svg>Roadmap</button>
+    <div class="bottom"><button type="button" data-go="store"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>Back to storefront</button></div>
+  </aside>
+  <div class="adm-main">
+    <div class="adm-tabs chips" id="admTabs">
+      <button class="chip" type="button" data-go="store">← Store</button>
+      <button class="chip" type="button" data-view="dash" aria-pressed="true">Dashboard</button>
+      <button class="chip" type="button" data-view="inv">Inventory</button>
+      <button class="chip" type="button" data-view="roast">Roast plan</button>
+      <button class="chip" type="button" data-view="ws">Wholesale</button>
+      <button class="chip" type="button" data-view="orders">Orders</button>
+      <button class="chip" type="button" data-view="road">Roadmap</button>
+    </div>
+    <div class="adm-top">
+      <div><div class="eyebrow" id="admDate"></div><h1 id="admTitle">Good morning</h1></div>
+      <div class="sync"><span class="dot"></span>Synced with Shopify · POS · QuickBooks <span id="syncAgo">just now</span></div>
+    </div>
+
+    <!-- dashboard -->
+    <div class="adm-view on" data-v="dash">
+      <div class="kpis">
+        <div class="kpi"><small>Revenue today</small><b>$4,862</b><span class="delta">▲ 12% vs last Tue</span></div>
+        <div class="kpi"><small>Pickup orders</small><b>142</b><span class="delta">▲ 8% · avg wait 6 min</span></div>
+        <div class="kpi"><small>Active subscriptions</small><b>1,318</b><span class="delta">▲ 41 this month · 2.9% churn</span></div>
+        <div class="kpi"><small>Wholesale receivable</small><b>$18,240</b><span class="delta neg">$3,120 past due</span></div>
+      </div>
+      <div class="adm-grid">
+        <div class="card-a">
+          <div class="hd"><h3>Revenue by channel · last 7 days</h3><span class="pill">$31.4k total</span></div>
+          <div class="chart" id="chart"></div>
+          <div class="legend"><span><i style="background:#c4522a"></i>Cafés &amp; pickup</span><span><i style="background:#1c1a17"></i>Web</span><span><i style="background:#2f6b4f"></i>Subscriptions</span><span><i style="background:#b07a12"></i>Wholesale</span></div>
+        </div>
+        <div class="card-a">
+          <div class="hd"><h3>Needs attention</h3></div>
+          <ul class="feed" id="attention"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- inventory -->
+    <div class="adm-view" data-v="inv">
+      <div class="card-a">
+        <div class="hd"><h3>Inventory by coffee</h3><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="pill">Changes sync to Shopify within seconds</span><button class="btn btn-ghost btn-sm" type="button" data-toast="Exported inventory.csv">Export</button></div></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Coffee</th><th class="num">Green (lb)</th><th class="num">Roasted (lb)</th><th class="num">Retail bags</th><th class="num">Sold / day</th><th class="num">Days left</th><th>Status</th><th>Web</th></tr></thead>
+          <tbody id="invBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- roast plan -->
+    <div class="adm-view" data-v="roast">
+      <div class="card-a">
+        <div class="hd"><h3>Tomorrow's roast plan, built from open orders</h3><button class="btn btn-dark btn-sm" type="button" data-toast="Roast sheet sent to the roastery printer">Print roast sheet</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Coffee</th><th class="num">Subscriptions</th><th class="num">Web</th><th class="num">Wholesale</th><th class="num">Cafés</th><th class="num">Need (lb)</th><th class="num">On hand</th><th class="num">Roast (lb)</th><th class="num">Batches</th></tr></thead>
+          <tbody id="roastBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- wholesale -->
+    <div class="adm-view" data-v="ws">
+      <div class="card-a" style="margin-bottom:20px">
+        <div class="hd"><h3>Pending applications</h3></div>
+        <ul class="feed" id="pendList"></ul>
+      </div>
+      <div class="card-a">
+        <div class="hd"><h3>Wholesale accounts</h3><button class="btn btn-ghost btn-sm" type="button" data-toast="Invoices sent to 7 accounts">Send weekly invoices</button></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Account</th><th>Tier</th><th>Standing order</th><th>Delivery</th><th class="num">Balance</th><th>Terms</th><th>Status</th></tr></thead>
+          <tbody id="wsBody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- orders -->
+    <div class="adm-view" data-v="orders">
+      <div class="card-a">
+        <div class="hd"><h3>All orders, every channel</h3><div class="chips" id="orderFilter" style="flex:0 1 auto"></div></div>
+        <ul class="feed" id="orderFeed"></ul>
+      </div>
+    </div>
+
+    <!-- roadmap -->
+    <div class="adm-view" data-v="road">
+      <div class="card-a">
+        <div class="hd"><h3>Future features on this platform</h3><span class="pill accent">Phase 2–3</span></div>
+        <div class="roadmap" id="roadmap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- overlays -->
+<div class="scrim" id="scrim"></div>
+
+<aside class="drawer" id="cart" aria-label="Cart" aria-hidden="true">
+  <div class="drawer-head"><h3>Your cart</h3><button class="icon-btn" type="button" data-close aria-label="Close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+  <div class="drawer-body" id="cartBody"></div>
+  <div class="drawer-foot" id="cartFoot"></div>
+</aside>
+
+<div class="modal" id="pdp" aria-hidden="true"><div class="sheet" role="dialog" aria-modal="true" aria-label="Coffee details"><button class="icon-btn close" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div id="pdpBody"></div></div></div>
+
+<div class="modal" id="order" aria-hidden="true"><div class="sheet" role="dialog" aria-modal="true" aria-label="Order ahead"><button class="icon-btn close" type="button" data-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6 6 18"/></svg></button><div class="oa" id="oaBody"></div></div></div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ---------- data ---------- */
+const COFFEES=[
+ {id:'e9',name:'Espresso No. 9',type:'Blend',roast:'Medium',region:'Latin America & Africa',origin:'Brazil · Ethiopia · Colombia',process:'Natural & washed',elev:'1,200–2,000 m',notes:['Dark chocolate','Cherry','Brown sugar'],price:20,organic:true,best:true,methods:['espresso','milk'],p:{sweet:4,acid:2,body:4},roastedDaysAgo:2,stock:64,color:'#3b2a20',brew:'18 g in · 38 g out · 28 s'},
+ {id:'mg',name:"Mrs. Garland's Blend",type:'Blend',roast:'Medium',region:'Latin America',origin:'Guatemala · Peru',process:'Washed',elev:'1,400–1,800 m',notes:['Milk chocolate','Toffee','Orange'],price:20,organic:true,best:true,methods:['drip','milk','press'],p:{sweet:4,acid:2,body:3},roastedDaysAgo:1,stock:88,color:'#8a5a2b',brew:'30 g coffee · 500 g water · 4 min'},
+ {id:'on',name:'Opening Night Decaf',type:'Decaf',roast:'Medium-Dark',region:'Latin America',origin:'Colombia',process:'Sugarcane EA decaf',elev:'1,600 m',notes:['Cocoa','Molasses','Almond'],price:22,organic:true,methods:['drip','espresso','milk','press'],p:{sweet:3,acid:1,body:4},roastedDaysAgo:3,stock:21,color:'#24323d',brew:'20 g coffee · 320 g water · 3:15'},
+ {id:'ng',name:'Ethiopia Nano Genji',type:'Single Origin',roast:'Light',region:'Africa',origin:'Agaro, Jimma, Ethiopia',process:'Washed',elev:'1,950–2,100 m',notes:['Jasmine','Peach','Bergamot'],price:22,organic:true,new:true,methods:['drip','pour'],p:{sweet:3,acid:4,body:2},roastedDaysAgo:1,stock:12,color:'#c98a3c',brew:'15 g coffee · 250 g water · 2:45'},
+ {id:'bu',name:'Burundi Ruvumu #4',type:'Single Origin',roast:'Light',region:'Africa',origin:'Kayanza, Burundi',process:'Washed',elev:'1,800 m',notes:['Red currant','Black tea','Honey'],price:21,new:true,methods:['pour','drip'],p:{sweet:3,acid:4,body:2},roastedDaysAgo:4,stock:30,color:'#9b3b33',brew:'15 g coffee · 250 g water · 3:00'},
+ {id:'cr',name:'Costa Rica Ricardo Perez',type:'Single Origin',roast:'Light-Medium',region:'Latin America',origin:'West Valley, Costa Rica',process:'Honey',elev:'1,700 m',notes:['Apricot','Caramel','Cacao nib'],price:22,new:true,methods:['pour','drip','espresso'],p:{sweet:5,acid:3,body:3},roastedDaysAgo:2,stock:9,color:'#d0703b',brew:'15 g coffee · 250 g water · 3:00'},
+ {id:'cb',name:'Russian River Cold Brew',type:'Blend',roast:'Medium-Dark',region:'Latin America',origin:'Brazil · Mexico',process:'Natural',elev:'1,100–1,500 m',notes:['Fudge','Hazelnut','Dried fig'],price:19,sample:true,methods:['cold','press','milk'],p:{sweet:4,acid:1,body:5},roastedDaysAgo:5,stock:47,color:'#4a5a3a',brew:'1:8 coarse · 16 h in the fridge'},
+ {id:'kn',name:'Kenya Kiambu AA',type:'Single Origin',roast:'Light',region:'Africa',origin:'Kiambu, Kenya',process:'Washed',elev:'1,750 m',notes:['Blackberry','Grapefruit','Cane sugar'],price:24,sample:true,limited:true,methods:['pour','drip'],p:{sweet:3,acid:5,body:3},roastedDaysAgo:1,stock:6,color:'#6b2f4a',brew:'15 g coffee · 250 g water · 3:00'}
+];
+const SIZES=[{k:'12oz',label:'12 oz',mult:1},{k:'2lb',label:'2 lb',mult:2.4},{k:'5lb',label:'5 lb',mult:5.5}];
+const GRINDS=['Whole bean','Drip / pour over','Espresso','French press','Cold brew'];
+const CAFES=[
+ {name:'Healdsburg Plaza',addr:'Downtown Healdsburg',open:6.5,close:17,wait:6,color:'#c4522a',feat:'Patio seating · Pastries'},
+ {name:'Railroad Square',addr:'Santa Rosa',open:6.5,close:16,wait:9,color:'#2f6b4f',feat:'Drive-up pickup window'},
+ {name:'The Roastery',addr:'Healdsburg',open:7,close:15,wait:4,color:'#1c1a17',feat:'Tastings · Classes · Bean pickup'}
+];
+const MENU=[
+ {id:'drip',name:'Drip coffee',desc:'Brewed fresh every 20 min',price:3.75},
+ {id:'latte',name:'Latte',desc:'Espresso No. 9 + steamed milk',price:5.5},
+ {id:'capp',name:'Cappuccino',desc:'Equal parts foam & milk',price:5.25},
+ {id:'cort',name:'Cortado',desc:'Short & strong',price:4.75},
+ {id:'cold',name:'Cold brew',desc:'16 hour steep',price:5},
+ {id:'mocha',name:'Mocha',desc:'House chocolate sauce',price:6},
+ {id:'chai',name:'Chai latte',desc:'Spiced, not too sweet',price:5.5},
+ {id:'cros',name:'Butter croissant',desc:'Baked locally each morning',price:4.25}
+];
+const FREE_SHIP=40;
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const fmt=n=>'$'+n.toFixed(2).replace(/\.00$/,'');
+const goatMark=c=>`<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="18" fill="${c}"/><path d="M11 25c3-1 5-4 6-8l2 3 3-7 2 8c2 2 4 3 6 3" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const bag=(c,small)=>`<div class="bag" style="background:${c.color}"><div class="lbl"><small>Flying Goat</small>${goatMark(c.color)}<strong>${c.name.replace(/^(Ethiopia|Burundi|Costa Rica|Kenya) /,'$1<br>')}</strong><small>${c.roast} roast</small></div></div>`;
+const tint=c=>`linear-gradient(160deg, ${c}22, ${c}44)`;
+function roastDate(d){const t=new Date();t.setDate(t.getDate()-d);return t.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})}
+function toast(msg){const t=$('#toast');t.innerHTML=`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7fd3a4" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>${msg}`;t.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove('on'),2600)}
+
+/* ---------- shop ---------- */
+const state={filters:new Set(),q:'',sort:'feat',card:{}};
+const FILTERS=[
+ {k:'quiz',label:'✦ Help me choose',quiz:true},
+ {k:'best',label:'Best sellers',fn:c=>c.best},
+ {k:'new',label:'New',fn:c=>c.new},
+ {k:'Light',label:'Light',fn:c=>c.roast.startsWith('Light')},
+ {k:'Medium',label:'Medium',fn:c=>c.roast.includes('Medium')},
+ {k:'Dark',label:'Dark',fn:c=>c.roast.includes('Dark')},
+ {k:'Single Origin',label:'Single origin',fn:c=>c.type==='Single Origin'},
+ {k:'Blend',label:'Blends',fn:c=>c.type==='Blend'},
+ {k:'Decaf',label:'Decaf',fn:c=>c.type==='Decaf'},
+ {k:'espresso',label:'For espresso',fn:c=>c.methods.includes('espresso')},
+ {k:'milk',label:'Great with milk',fn:c=>c.methods.includes('milk')},
+ {k:'pour',label:'Pour over',fn:c=>c.methods.includes('pour')},
+ {k:'cold',label:'Cold brew',fn:c=>c.methods.includes('cold')},
+ {k:'Africa',label:'Africa',fn:c=>c.region.includes('Africa')},
+ {k:'Latin America',label:'Latin America',fn:c=>c.region.includes('Latin')},
+ {k:'organic',label:'Organic',fn:c=>c.organic}
+];
+function renderChips(){
+  $('#chips').innerHTML=FILTERS.map(f=>`<button type="button" class="chip${f.quiz?' quiz':''}" data-f="${f.k}" aria-pressed="${state.filters.has(f.k)}">${f.label}</button>`).join('');
+}
+function cardState(id){return state.card[id]||(state.card[id]={size:'12oz',grind:'Whole bean',sub:false})}
+function unitPrice(c,size,sub){const m=SIZES.find(s=>s.k===size).mult;let p=Math.round(c.price*m*100)/100;if(sub)p=Math.round(p*90)/100;return p}
+function filtered(){
+  let list=COFFEES.filter(c=>{
+    for(const k of state.filters){const f=FILTERS.find(x=>x.k===k);if(f&&f.fn&&!f.fn(c))return false}
+    if(state.q){const hay=(c.name+' '+c.origin+' '+c.notes.join(' ')+' '+c.region+' '+c.process+' '+c.roast).toLowerCase();if(!state.q.toLowerCase().split(/\s+/).every(w=>hay.includes(w)))return false}
+    return true});
+  if(state.sort==='lo')list.sort((a,b)=>a.price-b.price);
+  if(state.sort==='hi')list.sort((a,b)=>b.price-a.price);
+  if(state.sort==='fresh')list.sort((a,b)=>a.roastedDaysAgo-b.roastedDaysAgo);
+  return list;
+}
+function profileBars(c){return [['Sweetness','sweet'],['Acidity','acid'],['Body','body']].map(([l,k])=>`<span>${l}</span><div class="bar" role="img" aria-label="${l} ${c.p[k]} of 5"><i style="width:${c.p[k]*20}%"></i></div>`).join('')}
+function renderGrid(){
+  const list=filtered();
+  const active=[...state.filters].map(k=>FILTERS.find(f=>f.k===k).label);
+  $('#resultLine').innerHTML=`<span><b>${list.length}</b> of ${COFFEES.length} coffees${active.length||state.q?` · ${[...active,state.q&&`“${state.q}”`].filter(Boolean).join(' + ')}`:''}</span>${active.length||state.q?'<button type="button" id="clearF">Clear filters</button>':''}`;
+  if(!list.length){$('#grid').innerHTML=`<div class="empty"><b>No coffees match all of those.</b><br>Try removing a filter, or <button class="btn btn-ghost btn-sm" type="button" id="clearF2">see everything</button></div>`;return}
+  $('#grid').innerHTML=list.map(c=>{
+    const s=cardState(c.id);const p=unitPrice(c,s.size,s.sub);const full=unitPrice(c,s.size,false);
+    const tags=[c.best&&'<span class="pill accent">Best seller</span>',c.new&&'<span class="pill green">New</span>',c.limited&&'<span class="pill amber">Limited lot</span>',c.organic&&'<span class="pill">Organic</span>'].filter(Boolean).join('');
+    return `<article class="card">
+      <button class="card-media" type="button" data-pdp="${c.id}" style="background:${tint(c.color)}" aria-label="View ${c.name} details"><div class="tags">${tags}</div>${bag(c)}</button>
+      <div class="card-body">
+        <div class="card-title"><h3><button type="button" data-pdp="${c.id}">${c.name}</button></h3><span class="price">${s.sub?`<s>${fmt(full)}</s>`:''}${fmt(p)}</span></div>
+        <div class="notes">${c.notes.join(' · ')}</div>
+        <div class="meta"><span class="pill">${c.roast}</span><span class="pill">${c.type}</span><span class="pill">${c.process}</span></div>
+        <div class="profile">${profileBars(c)}</div>
+        <div class="fresh${c.stock<15?' low':''}"><span class="dot"></span>Roasted ${roastDate(c.roastedDaysAgo)}${c.stock<15?` · only ${c.stock} bags left`:''}</div>
+        <div class="seg" role="group" aria-label="Size">${SIZES.map(z=>`<button type="button" data-size="${c.id}|${z.k}" aria-pressed="${s.size===z.k}">${z.label}</button>`).join('')}</div>
+        <label><span class="sr">Grind</span><select class="grind" data-grind="${c.id}">${GRINDS.map(g=>`<option${g===s.grind?' selected':''}>${g}</option>`).join('')}</select></label>
+        <label class="sub-toggle"><input type="checkbox" data-sub="${c.id}"${s.sub?' checked':''}>Subscribe &amp; save 10%<b>${s.sub?'Every 2 wks':''}</b></label>
+        <div class="actions"><button class="btn btn-dark btn-block" type="button" data-add="${c.id}">Add to cart · ${fmt(p)}</button></div>
+      </div></article>`}).join('');
+}
+
+/* ---------- pdp ---------- */
+function openPdp(id){
+  const c=COFFEES.find(x=>x.id===id);const s=cardState(id);
+  $('#pdpBody').innerHTML=`<div class="pdp"><div class="pdp-media" style="background:${tint(c.color)}">${bag(c)}</div>
+  <div class="pdp-info">
+    <div class="meta">${c.best?'<span class="pill accent">Best seller</span>':''}${c.new?'<span class="pill green">New</span>':''}<span class="pill">${c.roast} roast</span>${c.sample?'<span class="pill amber">Sample product</span>':''}</div>
+    <h2>${c.name}</h2>
+    <div style="font-size:18px">${c.notes.join(' · ')}</div>
+    <div class="profile" style="grid-template-columns:90px 1fr;font-size:13px">${profileBars(c)}</div>
+    <div class="specs"><div><small>Origin</small>${c.origin}</div><div><small>Process</small>${c.process}</div><div><small>Elevation</small>${c.elev}</div><div><small>Roasted</small>${roastDate(c.roastedDaysAgo)}</div></div>
+    <div class="recipe"><b>Our recipe:</b> ${c.brew}</div>
+    <div class="seg" role="group" aria-label="Size">${SIZES.map(z=>`<button type="button" data-size="${c.id}|${z.k}" aria-pressed="${s.size===z.k}">${z.label} · ${fmt(unitPrice(c,z.k,s.sub))}</button>`).join('')}</div>
+    <button class="btn btn-primary btn-block" type="button" data-add="${c.id}" data-closeafter>Add to cart · ${fmt(unitPrice(c,s.size,s.sub))}</button>
+    <button class="btn btn-ghost btn-block" type="button" data-subnow="${c.id}">Subscribe instead · save 10%</button>
+  </div></div>`;
+  openLayer('pdp');
+}
+
+/* ---------- cart ---------- */
+let cart=[];
+try{cart=JSON.parse(localStorage.getItem('fg-cart')||'[]')}catch(e){}
+function saveCart(){try{localStorage.setItem('fg-cart',JSON.stringify(cart))}catch(e){}}
+function addToCart(id){
+  const c=COFFEES.find(x=>x.id===id);const s=cardState(id);
+  const key=[id,s.size,s.grind,s.sub].join('|');const ex=cart.find(i=>i.key===key);
+  if(ex)ex.qty++;else cart.push({key,id,size:s.size,grind:s.grind,sub:s.sub,qty:1,price:unitPrice(c,s.size,s.sub)});
+  saveCart();renderCart();toast(`${c.name} added to cart`);
+}
+function cartTotal(){return cart.reduce((a,i)=>a+i.price*i.qty,0)}
+function renderCart(){
+  const n=cart.reduce((a,i)=>a+i.qty,0);
+  $$('[data-cart-count]').forEach(b=>{b.textContent=n;b.dataset.n=n});
+  const tot=cartTotal();const hasSub=cart.some(i=>i.sub);const left=Math.max(0,FREE_SHIP-tot);const free=left===0||hasSub;
+  if(!cart.length){
+    $('#cartBody').innerHTML=`<div style="text-align:center;padding:40px 0"><div style="font-family:var(--serif);font-size:22px;margin-bottom:8px">Your cart is empty</div><p class="muted">Start with a best seller, or let us pick.</p><button class="btn btn-dark" type="button" data-cartshop>Shop coffee</button></div>`;
+    $('#cartFoot').innerHTML='';return;
+  }
+  const up=COFFEES.find(c=>!cart.some(i=>i.id===c.id)&&c.best)||COFFEES.find(c=>!cart.some(i=>i.id===c.id));
+  $('#cartBody').innerHTML=`<div class="ship-bar">${free?'<b>🎉 You get free shipping</b>':`You're <b>${fmt(left)}</b> away from free shipping`}<div class="bar"><i style="width:${free?100:Math.min(100,tot/FREE_SHIP*100)}%"></i></div></div>`+
+   cart.map((i,ix)=>{const c=COFFEES.find(x=>x.id===i.id);return `<div class="line-item"><div class="thumb" style="background:${tint(c.color)}"><i style="background:${c.color}"></i></div><div><b>${c.name}</b><small>${SIZES.find(z=>z.k===i.size).label} · ${i.grind}${i.sub?' · <span style="color:var(--green);font-weight:600">Every 2 weeks</span>':''}</small><div class="qty"><button type="button" data-q="${ix}|-1" aria-label="Decrease">−</button><span>${i.qty}</span><button type="button" data-q="${ix}|1" aria-label="Increase">+</button></div></div><b>${fmt(i.price*i.qty)}</b></div>`}).join('')+
+   (up?`<div style="margin-top:20px"><div class="label" style="margin-top:0">Pairs well</div><div class="line-item" style="border:1px solid var(--line);border-radius:12px;padding:10px"><div class="thumb" style="background:${tint(up.color)}"><i style="background:${up.color}"></i></div><div><b>${up.name}</b><small>${up.notes.join(' · ')}</small></div><button class="btn btn-ghost btn-sm" type="button" data-add="${up.id}">+ ${fmt(up.price)}</button></div></div>`:'');
+  $('#cartFoot').innerHTML=`<div style="display:flex;justify-content:space-between;font-size:17px"><span>Subtotal</span><b>${fmt(tot)}</b></div>
+   <div class="muted" style="font-size:13px">Shipping ${free?'free':'calculated at checkout'} · or choose free café pickup</div>
+   <button class="btn btn-primary btn-block" type="button" data-toast="Prototype: this goes to Shopify checkout">Check out</button>
+   <button class="btn btn-dark btn-block" type="button" data-toast="Prototype: Shop Pay express checkout">Shop Pay · Apple Pay</button>`;
+}
+
+/* ---------- quiz ---------- */
+const QUIZ=[
+ {q:'How do you usually brew?',o:[['Espresso machine','espresso'],['Drip or pour over','pour'],['French press','press'],['Cold brew','cold']]},
+ {q:'Milk or black?',o:[['Usually with milk','milk','Lattes, cortados, a splash'],['Black','black','I want to taste the coffee']]},
+ {q:'Which sounds best?',o:[['Chocolate & caramel','choc','Rich, cozy, classic'],['Fruity & bright','fruit','Berries, citrus, florals'],['Surprise me','any','Show me the best fits']]}
+];
+let quizAns=[];
+function renderQuiz(){
+  const i=quizAns.length;
+  if(i>=QUIZ.length){
+    const [m,milk,taste]=quizAns;
+    let scored=COFFEES.map(c=>{let s=0;if(c.methods.includes(m))s+=3;if(milk==='milk'&&c.methods.includes('milk'))s+=2;if(milk==='black'&&c.type==='Single Origin')s+=1;if(taste==='choc'&&c.p.body>=3&&c.p.acid<=3)s+=2;if(taste==='fruit'&&c.p.acid>=4)s+=3;if(c.best)s+=.5;return{c,s}}).sort((a,b)=>b.s-a.s);
+    const top=scored[0].c;
+    $('#quiz').innerHTML=`<div class="progress"><i style="width:100%"></i></div><div class="quiz-step">Your match</div><div style="display:flex;gap:16px;align-items:center;margin-bottom:16px"><div class="thumb" style="width:72px;height:72px;background:${tint(top.color)}"><i style="background:${top.color};width:32px;height:44px"></i></div><div><div class="quiz-q" style="margin:0">${top.name}</div><div style="color:#bdb4a6">${top.notes.join(' · ')}</div></div></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-primary" type="button" data-pdp="${top.id}">See this coffee</button><button class="btn" style="background:#3a3631;color:#fff" type="button" id="quizShow">Show all my matches</button><button class="btn" style="color:#bdb4a6;background:none" type="button" id="quizReset">Start over</button></div>`;
+    return;
+  }
+  const s=QUIZ[i];
+  $('#quiz').innerHTML=`<div class="progress"><i style="width:${(i)/QUIZ.length*100+8}%"></i></div><div class="quiz-step">Question ${i+1} of ${QUIZ.length}${i?' · <button type="button" id="quizBack" style="background:none;border:0;color:#f0a283;padding:0;font-size:13px">Back</button>':''}</div><div class="quiz-q">${s.q}</div><div class="quiz-opts">${s.o.map(o=>`<button type="button" data-ans="${o[1]}">${o[0]}${o[2]?`<small>${o[2]}</small>`:''}</button>`).join('')}</div>`;
+}
+function applyQuiz(){
+  const [m,milk,taste]=quizAns;state.filters.clear();
+  state.filters.add(m==='press'?'milk':m);
+  if(milk==='milk'&&m!=='press')state.filters.add('milk');
+  if(taste==='fruit')state.filters.add('Light');
+  if(!filtered().length){state.filters.clear();state.filters.add(m==='press'?'milk':m)}
+  renderChips();renderGrid();document.querySelector('#shop').scrollIntoView();
+}
+
+/* ---------- subscription builder ---------- */
+const PLAN_PRICE={choice:20,espresso:18,garland:18,decaf:19.8};
+const PLAN_NAME={choice:"Roaster's Choice",espresso:'Espresso No. 9',garland:"Mrs. Garland's Blend",decaf:'Opening Night Decaf'};
+function renderSub(){
+  const plan=$('input[name=plan]:checked').value;const qty=+$('#subQty [aria-pressed=true]').dataset.v;const freq=+$('#subFreq [aria-pressed=true]').dataset.v;
+  const per=PLAN_PRICE[plan]*qty;const monthly=per*(4.33/freq);
+  $('#subPrice').textContent=fmt(per);
+  $('#subMonthly').textContent=`About ${fmt(Math.round(monthly))}/month · roughly ${fmt(per/(qty*24))} a cup`;
+  const next=new Date();next.setDate(next.getDate()+2);
+  $('#subSummary').innerHTML=`<div class="summary-line"><span>Coffee</span><b>${PLAN_NAME[plan]}</b></div><div class="summary-line"><span>Amount</span><b>${qty} × 12 oz bag${qty>1?'s':''}</b></div><div class="summary-line"><span>Frequency</span><b>${freq===1?'Every week':freq===2?'Every 2 weeks':'Monthly'}</b></div><div class="summary-line"><span>Grind</span><b>${$('#subGrind').value}</b></div><div class="summary-line"><span>First shipment</span><b>${next.toLocaleDateString('en-US',{weekday:'long',month:'short',day:'numeric'})}</b></div>`;
+}
+
+/* ---------- cafes ---------- */
+function hrs(h){const hh=Math.floor(h),mm=Math.round((h-hh)*60);const ap=hh>=12?'pm':'am';return `${((hh+11)%12)+1}${mm?':'+String(mm).padStart(2,'0'):''}${ap}`}
+function cafeStatus(c){const n=new Date();const h=n.getHours()+n.getMinutes()/60;if(h>=c.open&&h<c.close){const left=c.close-h;return{open:true,txt:left<1?`Open · closes in ${Math.round(left*60)} min`:`Open until ${hrs(c.close)}`,cls:left<1?'amber':'green'}}return{open:false,txt:`Closed · opens ${hrs(c.open)}${h>=c.close?' tomorrow':''}`,cls:'red'}}
+function renderCafes(){
+  $('#cafeGrid').innerHTML=CAFES.map((c,i)=>{const s=cafeStatus(c);return `<article class="cafe">
+    <div class="cafe-art" style="background:linear-gradient(135deg,${c.color},${c.color}bb)"><svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice" style="position:absolute;inset:0;width:100%;height:100%;opacity:.25"><path d="M0 120 C80 80 140 130 220 95 S340 60 400 90 V150 H0Z" fill="#fff"/><path d="M0 135 C100 110 180 145 260 120 S360 100 400 115 V150 H0Z" fill="#fff"/><circle cx="330" cy="40" r="18" fill="#fff"/></svg></div>
+    <div class="cafe-body"><span class="pill ${s.cls}" style="align-self:flex-start"><span class="dot"></span>${s.txt}</span><h3>${c.name}</h3>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-6-7-12a7 7 0 0 1 14 0c0 6-7 12-7 12Z"/><circle cx="12" cy="9" r="2.5"/></svg>${c.addr}</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Daily ${hrs(c.open)}–${hrs(c.close)}${s.open?` · ~${c.wait} min pickup`:''}</div>
+    <div class="row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6 9 17l-5-5"/></svg>${c.feat}</div>
+    <div class="actions"><button class="btn btn-primary btn-sm" type="button" data-open="order" data-cafe="${i}">Order ahead</button><button class="btn btn-ghost btn-sm" type="button" data-toast="Prototype: opens Maps with directions">Directions</button></div></div></article>`}).join('');
+  const open=CAFES.map((c,i)=>({c,s:cafeStatus(c),i})).filter(x=>x.s.open);
+  $('#heroStatus').innerHTML=open.length?open.map(x=>`<span class="pill green"><span class="dot"></span>${x.c.name} open · ~${x.c.wait} min</span>`).join(''):`<span class="pill">All cafés closed now · order tonight for pickup tomorrow</span>`;
+  $('#intentPickup').textContent=open.length?`${open.length} café${open.length>1?'s':''} open · ready in ~${Math.min(...open.map(x=>x.c.wait))} min`:'Schedule for tomorrow morning';
+}
+
+/* ---------- order ahead ---------- */
+const oa={cafe:0,slot:null,items:{}};
+function slots(){
+  const c=CAFES[oa.cafe];const n=new Date();let h=n.getHours()+n.getMinutes()/60;let out=[];let tomorrow=false;
+  let start=Math.ceil((h+c.wait/60)*12)/12;
+  if(start<c.open||start>=c.close-0.1){tomorrow=start>=c.close-0.1;start=c.open}
+  if(!tomorrow&&h>=c.open&&h<c.close)out.push({v:'asap',l:`ASAP · ~${c.wait} min`});
+  for(let t=start;t<Math.min(c.close,start+2.5)&&out.length<12;t+=1/6)out.push({v:t.toFixed(2),l:(tomorrow?'Tmrw ':'')+hrs(Math.round(t*12)/12)});
+  return out;
+}
+function renderOA(){
+  const sl=slots();if(!oa.slot||!sl.some(s=>s.v===oa.slot))oa.slot=sl[0]&&sl[0].v;
+  const count=Object.values(oa.items).reduce((a,b)=>a+b,0);const tot=Object.entries(oa.items).reduce((a,[k,q])=>a+MENU.find(m=>m.id===k).price*q,0);
+  $('#oaBody').innerHTML=`<div class="eyebrow">Order ahead</div><h2 style="font-size:30px;margin:4px 0 18px">Pick up at the counter, no line</h2>
+  <div class="oa-head"><div class="field"><label for="oaCafe">Café</label><select id="oaCafe">${CAFES.map((c,i)=>`<option value="${i}"${i===oa.cafe?' selected':''}>${c.name} · ${cafeStatus(c).txt}</option>`).join('')}</select></div></div>
+  <div class="label" style="margin-top:0">Pickup time</div><div class="slots" role="group" aria-label="Pickup time">${sl.map(s=>`<button type="button" data-slot="${s.v}" aria-pressed="${s.v===oa.slot}">${s.l}</button>`).join('')}</div>
+  <div class="label">Menu</div>
+  <div class="menu-grid">${MENU.map(m=>{const q=oa.items[m.id]||0;return `<div class="menu-item"><b>${m.name}</b><span>${m.desc}</span><div class="row"><b>${fmt(m.price)}</b>${q?`<div class="qty" style="margin:0"><button type="button" data-mi="${m.id}|-1" aria-label="Remove one">−</button><span>${q}</span><button type="button" data-mi="${m.id}|1" aria-label="Add one">+</button></div>`:`<button class="btn btn-dark btn-sm" type="button" data-mi="${m.id}|1">Add</button>`}</div></div>`}).join('')}</div>
+  <div class="oa-foot"><div><b>${count} item${count===1?'':'s'}</b> · ${fmt(tot)}<div class="muted" style="font-size:13px">${CAFES[oa.cafe].name} · ${(sl.find(s=>s.v===oa.slot)||{l:''}).l}</div></div><button class="btn btn-primary" type="button" id="oaPlace"${count?'':' disabled style="opacity:.5;cursor:not-allowed"'}>Place pickup order</button></div>`;
+}
+
+/* ---------- layers ---------- */
+let openId=null,lastFocus=null;
+function openLayer(id){closeLayer(true);lastFocus=document.activeElement;openId=id;$('#'+id).classList.add('on');$('#'+id).setAttribute('aria-hidden','false');$('#scrim').classList.add('on');document.body.style.overflow='hidden';setTimeout(()=>{const f=$('#'+id).querySelector('[data-close]');f&&f.focus()},50)}
+function closeLayer(silent){if(!openId)return;$('#'+openId).classList.remove('on');$('#'+openId).setAttribute('aria-hidden','true');$('#scrim').classList.remove('on');document.body.style.overflow='';openId=null;if(!silent&&lastFocus)lastFocus.focus()}
+
+/* ---------- ADMIN ---------- */
+const INV=COFFEES.map((c,i)=>({id:c.id,name:c.name,green:[820,640,180,140,260,95,410,60][i],roasted:[48,62,14,9,22,6,30,4][i],bags:c.stock,perDay:[14,16,4,7,3,5,6,2][i],web:true}));
+const WS=[
+ {name:'Healdsburg Wine Co. Tasting Room',tier:'Gold',order:'20 lb Espresso No. 9',day:'Tue',bal:2480,terms:'Net 30',status:'Current'},
+ {name:'Plaza Bakery',tier:'Silver',order:'12 lb Mrs. Garland\'s',day:'Mon/Thu',bal:860,terms:'Net 15',status:'Current'},
+ {name:'Sonoma Tech Campus',tier:'Gold',order:'40 lb mixed',day:'Wed',bal:5200,terms:'Net 30',status:'Current'},
+ {name:'Dry Creek Inn',tier:'Silver',order:'15 lb Opening Night',day:'Fri',bal:1340,terms:'Net 30',status:'Past due'},
+ {name:'Bodega Bay Café',tier:'Bronze',order:'8 lb Espresso No. 9',day:'Tue',bal:420,terms:'Prepaid',status:'Current'},
+ {name:'Windsor Grocery',tier:'Silver',order:'24 × 12 oz retail',day:'Mon',bal:1780,terms:'Net 30',status:'Past due'},
+ {name:'Petaluma Kitchen',tier:'Gold',order:'30 lb mixed',day:'Thu',bal:6160,terms:'Net 30',status:'Current'}
+];
+let PEND=[{name:'Guerneville Surf Shack',type:'Café',vol:'10–25 lb',when:'2 h ago'},{name:'Cloverdale Hotel',type:'Hotel',vol:'25–60 lb',when:'Yesterday'}];
+const ORDERS=[
+ ['Pickup','Sam R. · 2 lattes, 1 croissant','Healdsburg Plaza','$15.25','2 min ago'],
+ ['Web','Priya K. · Ethiopia Nano Genji 12 oz ×2','Ships tomorrow','$44','6 min ago'],
+ ['Subscription','Renewal · Roaster\'s Choice ×1','Auto-charged','$20','9 min ago'],
+ ['Wholesale','Sonoma Tech Campus · 40 lb mixed','Delivery Wed','$520','14 min ago'],
+ ['Pickup','Jordan T. · cold brew, mocha','Railroad Square','$11','18 min ago'],
+ ['Web','Alex M. · Espresso No. 9 2 lb','Ships tomorrow','$48','25 min ago'],
+ ['Subscription','New · Mrs. Garland\'s ×2 every 2 wks','First ship Thu','$36','31 min ago'],
+ ['Pickup','Chris L. · drip ×3','The Roastery','$11.25','40 min ago']
+];
+const CH_COLOR={Pickup:'accent',Web:'',Subscription:'green',Wholesale:'amber'};
+let orderF='All';
+const ROAD=[
+ ['Loyalty','One rewards program for cafés and online','Points on every latte and bag; tiers; birthday drink. Same account at the register and on the web.'],
+ ['App','Branded mobile app','Order ahead, rewards, push notifications when a new limited lot drops.'],
+ ['Wholesale','Self-serve partner portal','Partners reorder, pay invoices, download spec sheets and book barista training.'],
+ ['Ops','Green coffee & lot traceability','Track each lot from import contract to roast batch to the bag a customer received.'],
+ ['Growth','Gift subscriptions & corporate gifting','Bulk gift orders with custom notes and scheduled delivery dates.'],
+ ['Experiences','Classes & cuppings','Sell and schedule tickets for latte art, home espresso and public cuppings.'],
+ ['AI','Brew assistant & smart reorder','Answers brewing questions and nudges customers right before their bag runs out.'],
+ ['Channels','Instagram, Google Shopping, Amazon','Sell everywhere from one Shopify catalog and one inventory count.'],
+ ['Data','Cohort & margin analytics','Lifetime value, churn by plan, and cost per bag including green, labor and packaging.']
+];
+function invStatus(r){const d=r.bags/r.perDay;return d<2?['red','Reorder now']:d<4?['amber','Low']:['green','Healthy']}
+function renderInv(){
+  $('#invBody').innerHTML=INV.map((r,i)=>{const[s,l]=invStatus(r);const d=(r.bags/r.perDay).toFixed(1);return `<tr><td><b>${r.name}</b></td><td class="num">${r.green.toLocaleString()}</td><td class="num">${r.roasted}</td><td class="num"><span class="stepper"><button type="button" data-inv="${i}|-1" aria-label="Decrease">−</button><span>${r.bags}</span><button type="button" data-inv="${i}|1" aria-label="Increase">+</button></span></td><td class="num">${r.perDay}</td><td class="num">${d}</td><td><span class="pill ${s}"><span class="dot"></span>${l}</span></td><td><label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" data-web="${i}"${r.web?' checked':''}>${r.web?'Live':'Hidden'}</label></td></tr>`}).join('');
+  $('#lowCount').textContent=INV.filter(r=>invStatus(r)[0]!=='green').length;
+}
+function renderRoast(){
+  $('#roastBody').innerHTML=INV.map((r,i)=>{const sub=[38,52,10,14,8,6,12,4][i],web=[12,14,4,9,5,6,8,3][i],ws=[60,24,15,0,0,0,10,0][i],cafe=[25,8,3,0,0,0,18,0][i];const need=sub+web+ws+cafe;const roast=Math.max(0,need-r.roasted);return `<tr><td><b>${r.name}</b></td><td class="num">${sub}</td><td class="num">${web}</td><td class="num">${ws}</td><td class="num">${cafe}</td><td class="num"><b>${need}</b></td><td class="num">${r.roasted}</td><td class="num"><b style="color:var(--accent)">${roast}</b></td><td class="num">${Math.ceil(roast/22)} × 22 lb</td></tr>`}).join('');
+}
+function renderWS(){
+  $('#wsBody').innerHTML=WS.map(w=>`<tr><td><b>${w.name}</b></td><td><span class="pill">${w.tier}</span></td><td>${w.order}</td><td>${w.day}</td><td class="num">${fmt(w.bal)}</td><td>${w.terms}</td><td><span class="pill ${w.status==='Current'?'green':'red'}"><span class="dot"></span>${w.status}</span></td></tr>`).join('');
+  $('#pendList').innerHTML=PEND.length?PEND.map((p,i)=>`<li><div class="who"><b>${p.name}</b><small>${p.type} · ${p.vol}/week · ${p.when}</small></div><button class="btn btn-dark btn-sm" type="button" data-approve="${i}">Approve</button><button class="btn btn-ghost btn-sm" type="button" data-decline="${i}">Decline</button></li>`).join(''):'<li class="muted">No pending applications. Nice.</li>';
+  $('#pendCount').textContent=PEND.length;$('#pendCount').style.display=PEND.length?'':'none';
+}
+function renderOrders(){
+  $('#orderFilter').innerHTML=['All','Pickup','Web','Subscription','Wholesale'].map(c=>`<button class="chip" type="button" data-of="${c}" aria-pressed="${c===orderF}">${c}</button>`).join('');
+  $('#orderFeed').innerHTML=ORDERS.filter(o=>orderF==='All'||o[0]===orderF).map(o=>`<li><span class="pill ${CH_COLOR[o[0]]}" style="min-width:96px;justify-content:center">${o[0]}</span><div class="who"><b>${o[1]}</b><small>${o[2]} · ${o[4]}</small></div><b>${o[3]}</b></li>`).join('');
+}
+function renderDash(){
+  const days=['Wed','Thu','Fri','Sat','Sun','Mon','Tue'];const data=[[1.9,1.2,.6,.8],[2.0,1.1,.7,1.4],[2.4,1.3,.5,.6],[3.1,1.6,.4,0],[2.8,1.4,.3,0],[1.8,1.0,1.2,1.1],[2.2,1.2,.6,.9]];const cols=['#c4522a','#1c1a17','#2f6b4f','#b07a12'];const max=6.5;
+  $('#chart').innerHTML=data.map((d,i)=>`<div class="col"><div class="stack" style="height:${d.reduce((a,b)=>a+b)/max*100}%">${d.map((v,j)=>`<i style="display:block;height:${v/d.reduce((a,b)=>a+b)*100}%;background:${cols[j]}" title="$${(v*1000).toFixed(0)}"></i>`).join('')}</div><small>${days[i]}</small></div>`).join('');
+  const low=INV.filter(r=>invStatus(r)[0]==='red');
+  $('#attention').innerHTML=[...low.map(r=>`<li><span class="pill red">Stock</span><div class="who"><b>${r.name}</b><small>${r.bags} bags · ${(r.bags/r.perDay).toFixed(1)} days left</small></div><button class="btn btn-ghost btn-sm" type="button" data-view="roast">Plan roast</button></li>`),
+   ...PEND.map(p=>`<li><span class="pill amber">Wholesale</span><div class="who"><b>${p.name}</b><small>New application · ${p.vol}/wk</small></div><button class="btn btn-ghost btn-sm" type="button" data-view="ws">Review</button></li>`),
+   `<li><span class="pill red">Invoices</span><div class="who"><b>2 accounts past due</b><small>Dry Creek Inn, Windsor Grocery · $3,120</small></div><button class="btn btn-ghost btn-sm" type="button" data-toast="Reminders sent">Remind</button></li>`,
+   `<li><span class="pill green">Subs</span><div class="who"><b>184 renewals tomorrow</b><small>Labels ready to print at 6am</small></div></li>`].join('');
+}
+const TITLES={dash:'Good morning',inv:'Inventory',roast:'Roast plan',ws:'Wholesale',orders:'Orders',road:'Roadmap'};
+function showView(v){
+  $$('.adm-view').forEach(x=>x.classList.toggle('on',x.dataset.v===v));
+  $$('.side [data-view]').forEach(b=>b.setAttribute('aria-current',b.dataset.view===v));
+  $$('#admTabs [data-view]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===v));
+  $('#admTitle').textContent=TITLES[v];window.scrollTo(0,0);
+  if(v==='dash')renderDash();
+}
+function renderAdmin(){renderInv();renderRoast();renderWS();renderOrders();renderDash();
+  $('#roadmap').innerHTML=ROAD.map(r=>`<div><span class="pill accent">${r[0]}</span><b>${r[1]}</b><span>${r[2]}</span></div>`).join('');
+  $('#admDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});}
+function route(){const admin=location.hash==='#admin';document.body.classList.toggle('is-admin',admin);if(admin){renderAdmin();window.scrollTo(0,0)}}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('button,a,[data-pdp]');if(!t)return;
+  const d=t.dataset;
+  if(d.go){e.preventDefault();if(d.go==='admin'){location.hash='admin'}else{history.pushState('',document.title,location.pathname);route()}return}
+  if(d.f){if(d.f==='quiz'){$('#finder').scrollIntoView();return}state.filters.has(d.f)?state.filters.delete(d.f):state.filters.add(d.f);renderChips();renderGrid();return}
+  if(t.id==='clearF'||t.id==='clearF2'){state.filters.clear();state.q='';$('#q').value='';renderChips();renderGrid();return}
+  if(d.size){const[id,k]=d.size.split('|');cardState(id).size=k;renderGrid();if(openId==='pdp')openPdp(id);return}
+  if(d.add){addToCart(d.add);if(d.closeafter!==undefined){closeLayer();openLayer('cart')}return}
+  if(d.pdp){openPdp(d.pdp);return}
+  if(d.subnow){cardState(d.subnow).sub=true;renderGrid();openPdp(d.subnow);return}
+  if(d.open){e.preventDefault();if(d.open==='order'){if(d.cafe)oa.cafe=+d.cafe;else{const o=CAFES.findIndex(c=>cafeStatus(c).open);if(o>=0&&!oa._picked)oa.cafe=o}renderOA()}openLayer(d.open);return}
+  if(d.close!==undefined){closeLayer();return}
+  if(d.scroll){$(d.scroll).scrollIntoView();return}
+  if(d.q){const[ix,dl]=d.q.split('|').map(Number);cart[ix].qty+=dl;if(cart[ix].qty<=0)cart.splice(ix,1);saveCart();renderCart();return}
+  if(d.cartshop!==undefined){closeLayer();$('#shop').scrollIntoView();return}
+  if(d.toast){e.preventDefault();toast(d.toast);return}
+  if(d.ans){quizAns.push(d.ans);renderQuiz();return}
+  if(t.id==='quizBack'){quizAns.pop();renderQuiz();return}
+  if(t.id==='quizReset'){quizAns=[];renderQuiz();return}
+  if(t.id==='quizShow'){applyQuiz();return}
+  if(t.closest('#subQty,#subFreq')){t.parentElement.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===t));renderSub();return}
+  if(t.id==='subStart'){toast(`Subscription started: ${$('#subPrice').textContent} per shipment`);return}
+  if(t.id==='subGift'){toast('Prototype: gift flow with recipient & start date');return}
+  if(d.slot){oa.slot=d.slot;renderOA();return}
+  if(d.mi){const[id,dl]=d.mi.split('|');oa.items[id]=Math.max(0,(oa.items[id]||0)+ +dl);renderOA();return}
+  if(t.id==='oaPlace'&&!t.disabled){const c=CAFES[oa.cafe];oa.items={};closeLayer();toast(`Order placed! Pick up at ${c.name} — we'll text you when it's ready`);return}
+  if(d.view){showView(d.view);return}
+  if(d.inv){const[i,dl]=d.inv.split('|').map(Number);INV[i].bags=Math.max(0,INV[i].bags+dl);COFFEES[i].stock=INV[i].bags;renderInv();$('#syncAgo').textContent='just now';return}
+  if(d.approve){const p=PEND.splice(+d.approve,1)[0];WS.unshift({name:p.name,tier:'Bronze',order:'Set up with customer',day:'TBD',bal:0,terms:'Prepaid',status:'Current'});renderWS();toast(`${p.name} approved, welcome email & portal login sent`);return}
+  if(d.decline){const p=PEND.splice(+d.decline,1)[0];renderWS();toast(`${p.name} declined`);return}
+  if(d.of){orderF=d.of;renderOrders();return}
+});
+document.addEventListener('change',e=>{
+  const t=e.target;
+  if(t.dataset.grind){cardState(t.dataset.grind).grind=t.value}
+  if(t.dataset.sub){cardState(t.dataset.sub).sub=t.checked;renderGrid()}
+  if(t.name==='plan'||t.id==='subGrind')renderSub();
+  if(t.id==='sort'){state.sort=t.value;renderGrid()}
+  if(t.id==='oaCafe'){oa.cafe=+t.value;oa._picked=true;oa.slot=null;renderOA()}
+  if(t.dataset.web){const r=INV[+t.dataset.web];r.web=t.checked;renderInv();toast(`${r.name} ${r.web?'published to':'hidden from'} the web store`)}
+});
+let qt;$('#q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{state.q=e.target.value.trim();renderGrid()},120)});
+$('[data-focus-search]').addEventListener('click',()=>{$('#shop').scrollIntoView();setTimeout(()=>$('#q').focus(),300)});
+$('#scrim').addEventListener('click',()=>closeLayer());
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLayer();if(e.key==='/'&&document.activeElement.tagName!=='INPUT'&&document.activeElement.tagName!=='TEXTAREA'&&!document.body.classList.contains('is-admin')){e.preventDefault();$('#q').focus()}});
+$('#wsForm').addEventListener('submit',e=>{e.preventDefault();const n=$('#ws1').value;PEND.unshift({name:n,type:$('#ws4').value,vol:$('#ws5').value,when:'Just now'});e.target.reset();toast(`Thanks! ${n}'s application is in, and it now shows in the admin panel`)});
+$('#newsForm').addEventListener('submit',e=>{e.preventDefault();e.target.reset();toast("You're on the list. Watch for new roasts on Thursdays")});
+window.addEventListener('hashchange',route);
+
+renderChips();renderGrid();renderCart();renderQuiz();renderSub();renderCafes();route();
+</script>
+</body>
+</html>
